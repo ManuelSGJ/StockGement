@@ -6,6 +6,7 @@ import ModalOwner from '../../components/owner/ModalOwner'
 import InputForm from '../../components/inputs/InputForm'
 import Swal from 'sweetalert2'
 import Loader from '../../global/Loader'
+import MessageDiv from '../../global/MessageDiv'
 import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../components/Icons/IconsFontAwesome'
 
 const Empresas = ({ className }) => {
@@ -13,7 +14,7 @@ const Empresas = ({ className }) => {
     const [empresasList, setIdEmpresasList] = useState([])
     const [showInputSearch, setShowInputSearch] = useState(false)
     const [textInputSearch, setTextInputSearch] = useState('')
-    const [textSearch] = useDebounce(textInputSearch, 1000)
+    const [textSearch] = useDebounce(textInputSearch, 1500)
     const [isFetching, setIsFetching] = useState(false)
     const [modalView, setModalView] = useState(false)
     const [modalCreate, setModalCreate] = useState(false)
@@ -36,8 +37,6 @@ const Empresas = ({ className }) => {
         const response = await fetch('http://localhost:3001/empresas'+filter)
         const {dataProcess} = await response.json()
 
-        console.log(dataProcess);
-
         if (dataProcess === 'Not empresas Uvaliable') {
             setIdEmpresasList([])
             setTimeout(() => {
@@ -55,6 +54,7 @@ const Empresas = ({ className }) => {
         const [nit, razonSocial, personaResponsable, direccion, fechaExpLicencia] = modalForm.current
         const response = await fetch('http://localhost:3001/empresas/id/'+id)
         const {infoProcess, error, dataProcess} = await response.json()
+        console.log(dataProcess);
 
         if (infoProcess === 'error') {
             setTimeout(() => {
@@ -104,24 +104,12 @@ const Empresas = ({ className }) => {
         const formModal = action === 'create' ? formCreate : formUpdate
 
         const response = await fetch(url, params)
-        const dataResponse = await response.json()
+        const {error, infoProcess} = await response.json()
 
-        if (dataResponse.infoProcess === 'success') {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: action === 'create' ? 'Empresa creado exitosamente' : 'Empresa actualizado exitosamente',
-                showConfirmButton: false,
-            }).then(() => {
-                setIdEmpresa(null)
-                closeModal(setClose, formModal)
-            })
-
-            loadEmpresas()
-        } else {
+        if (infoProcess === 'error') {
             let messageError;
 
-            if (dataResponse.error === 'empresaNotFound') {
+            if (error === 'empresaNotFound') {
                 messageError = 'Empresa no encontrado'
             }else {
                 messageError = 'No se pudo crear la empresa, revise bien la informacion enviada'
@@ -133,7 +121,20 @@ const Empresas = ({ className }) => {
                 'error'
             )
 
+            return false
         }
+
+        Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: action === 'create' ? 'Empresa creado exitosamente' : 'Empresa actualizado exitosamente',
+            showConfirmButton: false,
+        }).then(() => {
+            setIdEmpresa(null)
+            closeModal(setClose, formModal)
+        })
+
+        loadEmpresas()
     }
 
     const deleteEmpresa = (id) => {
@@ -155,7 +156,7 @@ const Empresas = ({ className }) => {
                 }
 
                 const result = await fetch(url, params)
-                const {infoProcess, error, dataProcess} = await result.json()
+                const {infoProcess, error} = await result.json()
 
                 if (infoProcess === 'error') {
                     setTimeout(() => {
@@ -240,7 +241,11 @@ const Empresas = ({ className }) => {
                         )
                     )
                     :
-                    <h1>No hay empresas disponibles</h1>
+                    <MessageDiv>
+                        <div>
+                            <h1>Upss!<br/> <span>No hay Empresas registradas todavía.</span></h1>
+                        </div>
+                    </MessageDiv>
                 }
             </div>
 
@@ -285,11 +290,11 @@ const Empresas = ({ className }) => {
                 method={closeModal}
             >
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
-                    <InputForm type='number' text='Nit Empresa' />
-                    <InputForm type='text' text='Razon Social' />
-                    <InputForm type='text' text='Persona responsable' />
-                    <InputForm type='text' text='Dirección' />
-                    <InputForm type='date' text='Fecha de licencia' />
+                    <InputForm active type='number' text='Nit Empresa' />
+                    <InputForm active type='text' text='Razon Social' />
+                    <InputForm active type='text' text='Persona responsable' />
+                    <InputForm active type='text' text='Dirección' />
+                    <InputForm active type='date' text='Fecha de licencia' />
                     <input type="submit" value='Editar' />
                 </form>
             </ModalOwner>

@@ -8,7 +8,7 @@ import Swal from "sweetalert2"
 const Login = ({className}) => {
 
     const {updateSession} = useContext(ProfileContext.Context)
-    
+
     const loginUser = async (event) => {
         event.preventDefault()
         const [user, password] = event.target

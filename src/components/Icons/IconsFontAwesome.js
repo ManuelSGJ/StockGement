@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faMagnifyingGlass, faXmark, faPenToSquare, faTrash, faEye, faCloudMoon, faArrowLeft} from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faMagnifyingGlass, faXmark, faPenToSquare, faTrash, faEye, faCloudMoon, faArrowLeft, faFilter} from '@fortawesome/free-solid-svg-icons'
 
 
 export const FaPlus =  <FontAwesomeIcon icon={faPlus} />
@@ -10,3 +10,4 @@ export const FaTrash  = <FontAwesomeIcon icon={faTrash} />
 export const FaEye  = <FontAwesomeIcon icon={faEye} />
 export const FaCloud  = <FontAwesomeIcon icon={faCloudMoon} />
 export const FaArrowLeft  = <FontAwesomeIcon icon={faArrowLeft} />
+export const FaFilter = <FontAwesomeIcon icon={faFilter} />

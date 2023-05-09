@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useRef, useState, useEffect } from 'react';
 
-const Input = ({ value, type, text, className, datalist, isBlock}) => {
+const Input = ({ value, type, text, className, datalist, isBlock, active}) => {
     const [styleLabel, setStyleLabel] = useState({})
 
     const inputField = useRef()
@@ -33,7 +33,7 @@ const Input = ({ value, type, text, className, datalist, isBlock}) => {
         if (type === 'date') {
             setStyleLabel(stylesLabelActive)
         }
-        if (isBlock) {
+        if (isBlock || active) {
             setStyleLabel(stylesLabelActive)
         }
         if (value.trim() !== '') {
@@ -78,15 +78,16 @@ const Input = ({ value, type, text, className, datalist, isBlock}) => {
 
                     <datalist id={datalist.nameList}>
                         {
-                            datalist.data.map(({empresa_NIT, empresa_persona_responsable, empresa_razon_social}) => (
+                            datalist.data.map(({value, dataValue}) => (
                                 <option 
-                                    key={empresa_NIT} 
-                                    data-value={empresa_NIT} 
-                                    value={empresa_NIT+', '+empresa_razon_social+', '+empresa_persona_responsable}
+                                    key={value} 
+                                    data-value={dataValue} 
+                                    value={value}
                                 />
                             ))
                         }
                     </datalist>
+                    
                     <label style={styleLabel}>
                         {text}
                     </label>
@@ -104,6 +105,7 @@ const InputForm = styled(Input).attrs(props => ({
     text: props.text ? props.text : '',
     datalist: props.datalist ? props.datalist : false,
     isBlock: props.isBlock ? true : false,
+    active: props.active ? true : false
 })
 )`
     width: ${props => props.fullInput ? '100%' : '30%'};

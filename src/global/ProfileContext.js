@@ -1,5 +1,4 @@
 import { createContext, useState ,useEffect } from "react"
-import {ReactSession} from 'react-client-session'
 import { encryptText, decryptText } from '../functions/cryptography'
 
 const ProfileContext = createContext()
@@ -8,33 +7,33 @@ const ProfileProvider = ({ children }) => {
     const [user, setUser] = useState(null)
 
     useEffect(() => {
-        ReactSession.setStoreType('localStorage')
+        const infoLocalStorage = localStorage.getItem('user')
 
-        const infoLocalStorage = ReactSession.get('user')
-
-        if (infoLocalStorage === undefined) {
-            ReactSession.set('user', {
+        if (!infoLocalStorage) {
+            localStorage.setItem('user', JSON.stringify({
                 typeUser: encryptText(''),
                 fallBack: encryptText('/Login'),
                 navBar: encryptText('')
-            })
+            }))
         }
 
         const decrypted = {
-            fallBack: decryptText(infoLocalStorage.fallBack),
-            navBar: decryptText(infoLocalStorage.navBar),
-            typeUser: decryptText(infoLocalStorage.typeUser),
+            fallBack: decryptText(JSON.parse(infoLocalStorage).fallBack),
+            navBar: decryptText(JSON.parse(infoLocalStorage).navBar),
+            typeUser: decryptText(JSON.parse(infoLocalStorage).typeUser),
         }
+
+        console.log(decrypted);
 
         setUser(decrypted)
     }, [])
 
     const updateSession = (newUSer) => {
-        ReactSession.set('user', {
+        localStorage.setItem('user', JSON.stringify({
             typeUser: encryptText(newUSer.typeUser),
             fallBack: encryptText(newUSer.fallBack),
-            navBar: encryptText(newUSer.navBar),
-        })
+            navBar: encryptText(newUSer.navBar)
+        }))
 
         setUser(newUSer)
     }

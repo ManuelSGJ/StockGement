@@ -1,8 +1,6 @@
-import {ReactSession} from 'react-client-session'
+
 
 const HomePage = () => {
-
-    const user = ReactSession.get('user')
 
     return (
         <div>

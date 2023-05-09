@@ -13,7 +13,7 @@ import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../
 
 const Admin = ({ className }) => {
 
-    const [AdminList, setAdminList] = useState([])
+    const [UsersList, setUsersList] = useState([])
     const [showInputSearch, setShowInputSearch] = useState(false)
     const [textInputSearch, setTextInputSearch] = useState('')
     const [textSearch] = useDebounce(textInputSearch, 1500)
@@ -21,7 +21,7 @@ const Admin = ({ className }) => {
     const [modalView, setModalView] = useState(false)
     const [modalCreate, setModalCreate] = useState(false)
     const [modalUpdate, setModalUpdate] = useState(false)
-    const [idAdmin, setIdAdmin] = useState(null)
+    const [IdUser, setIdUser] = useState(null)
     const [dataList, setDataList] = useDataList()
 
     const inputSearch = useRef()
@@ -37,18 +37,20 @@ const Admin = ({ className }) => {
 
     const loadItems = async (filter = '') => {
         setIsFetching(true)
-        const response = await fetch('http://localhost:3001/admins' + filter)
+        const response = await fetch('http://localhost:3001/users' + filter)
         const { dataProcess } = await response.json()
 
-        if (dataProcess === 'Not admins avaliable') {
-            setAdminList([])
+        console.log(dataProcess);
+
+        if (dataProcess === 'Not users avaliable') {
+            setUsersList([])
             setTimeout(() => {
                 setIsFetching(false)
             }, 500);
             return false
         }
 
-        setAdminList(dataProcess)
+        setUsersList(dataProcess)
         setIsFetching(false)
     }
 
@@ -70,9 +72,11 @@ const Admin = ({ className }) => {
     }
 
     const loadInfoModal = async (id, modalForm, showModal) => {
-        const [cedula, nombre, apellido, telefono, direccion, empresa, password] = modalForm.current
-        const response = await fetch('http://localhost:3001/admins/id/' + id)
+        const [cedula, nombre, apellido, telefono, empresa, password, ventasSection, comprasSection, historialSection] = modalForm.current
+        const response = await fetch('http://localhost:3001/users/id/' + id)
         const { infoProcess, error, dataProcess } = await response.json()
+        const {ventas, compras, historial} = JSON.parse(dataProcess.User_modulos)
+
 
         if (infoProcess === 'error') {
             setTimeout(() => {
@@ -81,22 +85,33 @@ const Admin = ({ className }) => {
 
             Swal.fire(
                 'Ha ocurrido un error',
-                error === 'adminNotFound' ? 'Administrador no encontrado' : error,
+                error === 'userNotFound' ? 'Usuario no encontrado' : error,
                 'error'
             )
 
             return false
         }
 
-        cedula.value = dataProcess.Admin_cedula
-        nombre.value = dataProcess.Admin_nombre
-        apellido.value = dataProcess.Admin_apellido
-        telefono.value = dataProcess.Admin_telefono
-        direccion.value = dataProcess.Admin_direccion
+        cedula.value = dataProcess.User_cedula
+        nombre.value = dataProcess.User_nombre
+        apellido.value = dataProcess.User_apellido
+        telefono.value = dataProcess.User_telefono
         empresa.value = dataProcess.Empresa.empresa_razon_social
-        password.value = decryptText(dataProcess.Admin_password)
+        password.value = decryptText(dataProcess.User_password)
 
-        setIdAdmin(id)
+        if (ventas !== '') {
+            ventasSection.checked = true
+        }
+
+        if (compras !== '') {
+            comprasSection.checked = true
+        }
+
+        if (historial !== '') {
+            historialSection.checked = true
+        }
+
+        setIdUser(id)
         showModal(true)
         setTimeout(() => {
             setIsFetching(false)
@@ -104,18 +119,33 @@ const Admin = ({ className }) => {
     }
 
     const handleSubmit = async (action, form) => {
-        const [cedula, nombre, apellido, telefono, direccion, empresa, password] = form
+        const [cedula, nombre, apellido, telefono, empresa, password, ventasSection, comprasSection, historialSection] = form
         const data = {
             cedula: cedula.value,
             nombre: nombre.value,
             apellido: apellido.value,
             telefono: telefono.value,
-            direccion: direccion.value,
             empresa: empresa.value.split(' | ', 2)[0],
-            password: password.value
+            password: password.value,
+            sections: JSON.stringify({
+                ventas: ventasSection.checked ? 'ventas' : '',
+                compras: comprasSection.checked ? 'compras' : '',
+                historial: historialSection.checked ? 'historial' : ''
+            })
+        }
+        
+        if (!(empresa.value.includes('|'))){
+            Swal.fire({
+                position: 'center',
+                icon: 'info',
+                title: 'Seleccione un formato de empresa correcto',
+                showConfirmButton: false,
+            })
+
+            return false
         }
 
-        const url = action === 'create' ? 'http://localhost:3001/admins/createAdmin' : 'http://localhost:3001/admins/updateAdmin/' + idAdmin
+        const url = action === 'create' ? 'http://localhost:3001/users/createUser' : 'http://localhost:3001/users/updateUser/' + IdUser
         const method = action === 'create' ? 'POST' : 'PUT'
         const params = {
             method,
@@ -132,10 +162,10 @@ const Admin = ({ className }) => {
         if (infoProcess === 'error') {
             let messageError;
 
-            if (error === 'adminNotFound') {
-                messageError = 'Administrador no encontrado'
+            if (error === 'userNotFound') {
+                messageError = 'Usuario no encontrado'
             } else {
-                messageError = 'No se pudo crear el administrador, revise bien la informacion enviada'
+                messageError = 'No se pudo crear el Usuario, revise bien la informacion enviada'
             }
 
             Swal.fire(
@@ -153,7 +183,7 @@ const Admin = ({ className }) => {
             title: action === 'create' ? 'Usuario creado exitosamente' : 'Usuario actualizado exitosamente',
             showConfirmButton: false,
         }).then(() => {
-            setIdAdmin(null)
+            setIdUser(null)
             closeModal(setClose, formModal)
             loadItems()
         })
@@ -162,7 +192,7 @@ const Admin = ({ className }) => {
     const deleteEmpresa = (id) => {
         Swal.fire({
             title: 'Estas seguro?',
-            text: "Deseas eliinar este administrador?",
+            text: "Deseas eliinar este Usuario?",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -172,7 +202,7 @@ const Admin = ({ className }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
 
-                const url = 'http://localhost:3001/admins/deleteAdmin/' + id
+                const url = 'http://localhost:3001/users/deleteUser/' + id
                 const params = {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
@@ -188,7 +218,7 @@ const Admin = ({ className }) => {
 
                     Swal.fire(
                         'Ha ocurrido un error',
-                        error === 'adminNotFound' ? 'Admin no encontrado' : error,
+                        error === 'userNotFound' ? 'User no encontrado' : error,
                         'error'
                     )
 
@@ -226,7 +256,7 @@ const Admin = ({ className }) => {
             {isFetching && <Loader />}
 
             <div className='title-page' onMouseLeave={() => setShowInputSearch(false)} >
-                <h2>Aministradores</h2>
+                <h2>Usuarios</h2>
 
                 <div className='box-filter'>
                     <button onMouseEnter={() => setShowInputSearch(true)} onClick={() => toggleSearchInput(true)} >
@@ -239,7 +269,7 @@ const Admin = ({ className }) => {
 
                     <input
                         type="text"
-                        placeholder='Administrador...'
+                        placeholder='Usuario...'
                         className={showInputSearch ? 'active' : ''}
                         ref={inputSearch}
                         onBlur={() => setShowInputSearch(false)}
@@ -250,8 +280,8 @@ const Admin = ({ className }) => {
 
             <div className='content-page'>
                 {
-                    AdminList.length > 0 ?
-                        AdminList.map(({ Admin_cedula: id, Admin_nombre: nombre, Admin_apellido: apellido, Empresa: { empresa_razon_social: empresa } }) => (
+                    UsersList.length > 0 ?
+                        UsersList.map(({ User_cedula: id, User_nombre: nombre, User_apellido: apellido, Empresa: { empresa_razon_social: empresa } }) => (
                             <IterableComponent
                                 key={id}
                                 title={nombre + ' ' + apellido}
@@ -266,14 +296,14 @@ const Admin = ({ className }) => {
                         :
                         <MessageDiv>
                             <div>
-                                <h1>Upss!<br/> <span>No hay administradores registrados todavía.</span></h1>
+                                <h1>Upss!<br/> <span>No hay usuarios registrados todavía.</span></h1>
                             </div>
                         </MessageDiv>
                 }
             </div>
 
             <ModalOwner
-                titleModal='Información Administrador'
+                titleModal='Información Usuario'
                 active={modalView}
                 formModal={formView}
                 setClose={setModalView}
@@ -284,14 +314,25 @@ const Admin = ({ className }) => {
                     <InputForm isBlock type='text' text='Nombre' />
                     <InputForm isBlock type='text' text='Apellido' />
                     <InputForm isBlock type='text' text='Telefono' />
-                    <InputForm isBlock type='text' text='Dirección' />
                     <InputForm isBlock type='text' text='Empresa' />
                     <InputForm isBlock type='text' text='Contraseña' />
+                    <SeccionUser>
+                        <h2>Modulos</h2>
+                        <div>
+                            <input disabled type="checkbox" name='seccionUser'/><label>Ventas</label>
+                        </div>
+                        <div>
+                            <input disabled type="checkbox" name='seccionUser'/><label>Compras</label>
+                        </div>
+                        <div>
+                            <input disabled type="checkbox" name='seccionUser'/><label>Historiales</label>
+                        </div>
+                    </SeccionUser>
                 </form>
             </ModalOwner>
 
             <ModalOwner
-                titleModal='Nuevo Administrador'
+                titleModal='Nuevo Usuario'
                 active={modalCreate}
                 formModal={formCreate}
                 setClose={setModalCreate}
@@ -302,7 +343,6 @@ const Admin = ({ className }) => {
                     <InputForm type='text' text='Nombre' />
                     <InputForm type='text' text='Apellido' />
                     <InputForm type='text' text='Telefono' />
-                    <InputForm type='text' text='Dirección' />
                     <InputForm
                         type='dataInput'
                         text='Empresa'
@@ -312,12 +352,24 @@ const Admin = ({ className }) => {
                         }}
                     />
                     <InputForm type='text' text='Contraseña' />
+                    <SeccionUser>
+                        <h2>Modulos</h2>
+                        <div>
+                            <input type="checkbox" name='seccionUser'/><label>Ventas</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name='seccionUser'/><label>Compras</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name='seccionUser'/><label>Historiales</label>
+                        </div>
+                    </SeccionUser>
                     <input type="submit" value='Guardar' />
                 </form>
             </ModalOwner>
 
             <ModalOwner
-                titleModal='Editar información Administrador'
+                titleModal='Editar información Usuario'
                 active={modalUpdate}
                 formModal={formUpdate}
                 setClose={setModalUpdate}
@@ -328,7 +380,6 @@ const Admin = ({ className }) => {
                     <InputForm active type='text' text='Nombre' />
                     <InputForm active type='text' text='Apellido' />
                     <InputForm active type='text' text='Telefono' />
-                    <InputForm active type='text' text='Dirección' />
                     <InputForm
                         active
                         type='dataInput'
@@ -339,6 +390,19 @@ const Admin = ({ className }) => {
                         }}
                     />
                     <InputForm active type='text' text='Contraseña' />
+
+                    <SeccionUser>
+                        <h2>Modulos</h2>
+                        <div>
+                            <input type="checkbox" name='seccionUser'/><label>Ventas</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name='seccionUser'/><label>Compras</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" name='seccionUser'/><label>Historiales</label>
+                        </div>
+                    </SeccionUser>
                     <input type="submit" value='Editar' />
                 </form>
             </ModalOwner>
@@ -346,6 +410,59 @@ const Admin = ({ className }) => {
         </div>
     )
 }
+
+const SeccionUser = styled.div`
+    margin: 5px 0;
+    
+    h2{
+        font-weight: lighter;
+        margin-bottom: 20px;
+    }
+
+    div{
+        display: inline-block;
+        margin: 0 10px;
+        position: relative;
+    }
+
+    input[type=checkbox]{
+        position: relative;
+        cursor: pointer;
+        width: 95px;
+    }
+
+    input[type=checkbox]:before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 100%;
+        height: 40px;
+        top: -2px;
+        left: 0;
+        border-radius: 8px;
+        background-color: #F5F5F5;
+        box-shadow: 3px 3px 5px 0px rgba(84, 185, 217, .49);
+        transition: all 0.3s ease-in-out;
+    }
+
+    input[type=checkbox]:checked:before {
+        background-color: rgba(84, 185, 217);
+    }
+
+    input[type=checkbox]:checked ~ label{
+        color: #F5F5F5;
+    }
+
+    label{
+        position: absolute;
+        top: 60%;
+        left: 15%;
+        pointer-events: none;
+        user-select: none;
+        font-size: 14px;
+    }
+
+`
 
 const AdminPage = styled(Admin)`
 

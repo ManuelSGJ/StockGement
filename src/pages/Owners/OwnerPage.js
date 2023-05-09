@@ -7,13 +7,14 @@ import InputForm from '../../components/inputs/InputForm'
 import { decryptText } from '../../functions/cryptography'
 import Swal from 'sweetalert2'
 import Loader from '../../global/Loader'
+import MessageDiv from '../../global/MessageDiv'
 import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../components/Icons/IconsFontAwesome'
 
 const Owner = ({ className }) => {
     const [ownerList, setOwnerList] = useState([])
     const [isFetching, setIsFetching] = useState(false)
     const [textInputSearch, setTextInputSearch] = useState('')
-    const [textSearch] = useDebounce(textInputSearch, 1000)
+    const [textSearch] = useDebounce(textInputSearch, 1500)
     const [showInputSearch, setShowInputSearch] = useState(false)
     const [modalView, setModalView] = useState(false)
     const [modalCreate, setModalCreate] = useState(false)
@@ -35,9 +36,9 @@ const Owner = ({ className }) => {
     const loadOwner = async (filter = '') => {
         setIsFetching(true)
         const response = await fetch('http://localhost:3001/owners'+filter)
-        const Owners = await response.json()
+        const {dataProcess} = await response.json()
 
-        if (Owners.dataProcess === 'Not Owners avaliable') {
+        if (dataProcess === 'Not Owners avaliable') {
             setOwnerList([])
             setTimeout(() => {
                 setIsFetching(false)
@@ -46,7 +47,7 @@ const Owner = ({ className }) => {
             return false
         }
 
-        setOwnerList(Owners.dataProcess)
+        setOwnerList(dataProcess)
         setTimeout(() => {
             setIsFetching(false)
         }, 500);
@@ -109,23 +110,12 @@ const Owner = ({ className }) => {
         const formModal = action === 'create' ? formCreate : formUpdate
 
         const response = await fetch(url, params)
-        const dataResponse = await response.json()
+        const {error, infoProcess} = await response.json()
 
-        if (dataResponse.infoProcess === 'success') {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'success',
-                title: action === 'create' ? 'Usuario creado exitosamente' : 'Usuario actualizado exitosamente',
-                showConfirmButton: false,
-            }).then(() => {
-                setIdOwner(null)
-                closeModal(setClose, formModal)
-                loadOwner()
-            })
-        } else {
+        if (infoProcess === 'error') {
             let messageError;
 
-            if (dataResponse.error === 'userNotFound') {
+            if (error === 'userNotFound') {
                 messageError = 'Usuario no encontrado'
             }else {
                 messageError = 'No se pudo crear el usuario, revise bien la informacion enviada'
@@ -136,7 +126,20 @@ const Owner = ({ className }) => {
                 messageError,
                 'error'
             )
-        }
+
+            return false
+        } 
+
+        Swal.fire({
+            position: 'top-end',
+            icon: 'success',
+            title: action === 'create' ? 'Usuario creado exitosamente' : 'Usuario actualizado exitosamente',
+            showConfirmButton: false,
+        }).then(() => {
+            setIdOwner(null)
+            closeModal(setClose, formModal)
+            loadOwner()
+        })
     }
 
     const deleteOner = (idOwner) => {
@@ -159,7 +162,7 @@ const Owner = ({ className }) => {
                 }
 
                 const response = await fetch(url, params)
-                const { infoProcess, dataProcess, error } = await response.json()
+                const {infoProcess, error} = await response.json()
 
                 if (infoProcess === 'error') {
                     setTimeout(() => {
@@ -245,7 +248,11 @@ const Owner = ({ className }) => {
 
                         :
 
-                        <h1>No hay registros disponibles</h1>
+                        <MessageDiv>
+                            <div>
+                                <h1>Upss!<br/> <span>No hay Owners registrados todavía.</span></h1>
+                            </div>
+                        </MessageDiv>
                     }
                 </div>
             </div>
@@ -293,12 +300,12 @@ const Owner = ({ className }) => {
                 method={closeModal}
             >
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
-                    <InputForm type='number' text='Cedula' />
-                    <InputForm type='text' text='Nombre' />
-                    <InputForm type='text' text='Apellido' />
-                    <InputForm type='text' text='Telefono' />
-                    <InputForm type='email' text='Email' />
-                    <InputForm type='password' text='Contraseña' />
+                    <InputForm active type='number' text='Cedula' />
+                    <InputForm active type='text' text='Nombre' />
+                    <InputForm active type='text' text='Apellido' />
+                    <InputForm active type='text' text='Telefono' />
+                    <InputForm active type='email' text='Email' />
+                    <InputForm active type='password' text='Contraseña' />
                     <input type="submit" value='Editar' />
                 </form>
             </ModalOwner>

@@ -54,6 +54,7 @@ const TitleModal = styled.div`
 
 const Modal = styled.div`
     width: 45%;
+    min-width: 700px;
     background-color: #fdfdfd;
     border-radius: 31px;
     box-shadow: 3px 3px 5px 0px rgba(84, 185, 217, 0.49);

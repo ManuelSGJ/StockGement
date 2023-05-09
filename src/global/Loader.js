@@ -29,6 +29,7 @@ const LoaderStyled = styled.div`
     }
 
     div img{
+        width: 100%;
         max-width: 400px;
         user-select: none;
         pointer-events: none;
