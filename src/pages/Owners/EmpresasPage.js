@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDebounce } from 'use-debounce'
 import styled from 'styled-components'
-import IterableComponent from '../../components/owner/IterableComponent'
-import ModalOwner from '../../components/owner/ModalOwner'
+import IterableComponent from '../../components/IterableComponent'
+import ModalForm from '../../components/ModalForm'
 import InputForm from '../../components/inputs/InputForm'
 import Swal from 'sweetalert2'
-import Loader from '../../global/Loader'
-import MessageDiv from '../../global/MessageDiv'
-import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../components/Icons/IconsFontAwesome'
+import Loader from '../../components/Loader'
+import NoDataMessage from '../../components/NoDataMessage'
+import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../images/Icons/IconsFontAwesome'
 
 const Empresas = ({ className }) => {
 
@@ -54,7 +54,6 @@ const Empresas = ({ className }) => {
         const [nit, razonSocial, personaResponsable, direccion, fechaExpLicencia] = modalForm.current
         const response = await fetch('http://localhost:3001/empresas/id/'+id)
         const {infoProcess, error, dataProcess} = await response.json()
-        console.log(dataProcess);
 
         if (infoProcess === 'error') {
             setTimeout(() => {
@@ -241,15 +240,15 @@ const Empresas = ({ className }) => {
                         )
                     )
                     :
-                    <MessageDiv>
+                    <NoDataMessage>
                         <div>
                             <h1>Upss!<br/> <span>No hay Empresas registradas todavía.</span></h1>
                         </div>
-                    </MessageDiv>
+                    </NoDataMessage>
                 }
             </div>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Información Empresa'
                 active={modalView}
                 formModal={formView}
@@ -263,9 +262,9 @@ const Empresas = ({ className }) => {
                     <InputForm isBlock type='text' text='Dirección' />
                     <InputForm isBlock type='date' text='Fecha de licencia' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Nueva Empresa'
                 active={modalCreate}
                 formModal={formCreate}
@@ -280,9 +279,9 @@ const Empresas = ({ className }) => {
                     <InputForm type='date' text='Fecha de licencia' />
                     <input type="submit" value='Guardar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Editar información empresa'
                 active={modalUpdate}
                 formModal={formUpdate}
@@ -297,7 +296,7 @@ const Empresas = ({ className }) => {
                     <InputForm active type='date' text='Fecha de licencia' />
                     <input type="submit" value='Editar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
         </div>
     )

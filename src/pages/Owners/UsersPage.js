@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDebounce } from 'use-debounce'
 import styled from 'styled-components'
-import IterableComponent from '../../components/owner/IterableComponent'
-import ModalOwner from '../../components/owner/ModalOwner'
+import IterableComponent from '../../components/IterableComponent'
+import ModalForm from '../../components/ModalForm'
 import InputForm from '../../components/inputs/InputForm'
 import Swal from 'sweetalert2'
-import Loader from '../../global/Loader'
-import MessageDiv from '../../global/MessageDiv'
-import useDataList from '../../functions/useDataList'
-import { decryptText } from '../../functions/cryptography'
-import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../components/Icons/IconsFontAwesome'
+import Loader from '../../components/Loader'
+import NoDataMessage from '../../components/NoDataMessage'
+import useDataList from '../../global/useDataList'
+import { decryptText } from '../../global/cryptography'
+import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../images/Icons/IconsFontAwesome'
 
 const Admin = ({ className }) => {
 
@@ -39,9 +39,7 @@ const Admin = ({ className }) => {
         setIsFetching(true)
         const response = await fetch('http://localhost:3001/users' + filter)
         const { dataProcess } = await response.json()
-
-        console.log(dataProcess);
-
+        
         if (dataProcess === 'Not users avaliable') {
             setUsersList([])
             setTimeout(() => {
@@ -294,15 +292,15 @@ const Admin = ({ className }) => {
                             />
                         ))
                         :
-                        <MessageDiv>
+                        <NoDataMessage>
                             <div>
                                 <h1>Upss!<br/> <span>No hay usuarios registrados todavía.</span></h1>
                             </div>
-                        </MessageDiv>
+                        </NoDataMessage>
                 }
             </div>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Información Usuario'
                 active={modalView}
                 formModal={formView}
@@ -329,9 +327,9 @@ const Admin = ({ className }) => {
                         </div>
                     </SeccionUser>
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Nuevo Usuario'
                 active={modalCreate}
                 formModal={formCreate}
@@ -366,9 +364,9 @@ const Admin = ({ className }) => {
                     </SeccionUser>
                     <input type="submit" value='Guardar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Editar información Usuario'
                 active={modalUpdate}
                 formModal={formUpdate}
@@ -405,7 +403,7 @@ const Admin = ({ className }) => {
                     </SeccionUser>
                     <input type="submit" value='Editar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
         </div>
     )

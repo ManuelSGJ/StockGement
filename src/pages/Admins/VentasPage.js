@@ -1,8 +1,11 @@
 import styled from 'styled-components'
-import { FaPlus, FaFilter } from '../../components/Icons/IconsFontAwesome'
+import { FaPlus, FaFilter } from '../../images/Icons/IconsFontAwesome'
+
+//theme
+import "primereact/resources/themes/lara-light-indigo/theme.css";
+import "primereact/resources/primereact.min.css"; 
 
 const Ventas = ({ className }) => {
-
     return (
         <div className={className}>
 
@@ -21,7 +24,6 @@ const Ventas = ({ className }) => {
             </div>
 
             <div className='content-page'> 
-
             </div>
         </div>
     )

@@ -1,6 +1,6 @@
 import styled from "styled-components"
 
-const MessageDiv = styled.div`
+const NoDataMessage = styled.div`
     height: 70vh;
     width: 100%;
     display: flex;
@@ -30,4 +30,4 @@ const MessageDiv = styled.div`
     }
 `
 
-export default MessageDiv
+export default NoDataMessage

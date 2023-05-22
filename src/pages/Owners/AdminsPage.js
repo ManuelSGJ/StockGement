@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDebounce } from 'use-debounce'
 import styled from 'styled-components'
-import IterableComponent from '../../components/owner/IterableComponent'
-import ModalOwner from '../../components/owner/ModalOwner'
+import IterableComponent from '../../components/IterableComponent'
+import ModalForm from '../../components/ModalForm'
 import InputForm from '../../components/inputs/InputForm'
 import Swal from 'sweetalert2'
-import Loader from '../../global/Loader'
-import MessageDiv from '../../global/MessageDiv'
-import useDataList from '../../functions/useDataList'
-import { decryptText } from '../../functions/cryptography'
-import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../components/Icons/IconsFontAwesome'
+import Loader from '../../components/Loader'
+import NoDataMessage from '../../components/NoDataMessage'
+import useDataList from '../../global/useDataList'
+import { decryptText } from '../../global/cryptography'
+import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../images/Icons/IconsFontAwesome'
 
 const Admin = ({ className }) => {
 
@@ -113,6 +113,17 @@ const Admin = ({ className }) => {
             direccion: direccion.value,
             empresa: empresa.value.split(' | ', 2)[0],
             password: password.value
+        }
+
+        if (!(empresa.value.includes('|'))){
+            Swal.fire({
+                position: 'center',
+                icon: 'info',
+                title: 'Seleccione un formato de empresa correcto',
+                showConfirmButton: false,
+            })
+
+            return false
         }
 
         const url = action === 'create' ? 'http://localhost:3001/admins/createAdmin' : 'http://localhost:3001/admins/updateAdmin/' + idAdmin
@@ -264,15 +275,15 @@ const Admin = ({ className }) => {
                             />
                         ))
                         :
-                        <MessageDiv>
+                        <NoDataMessage>
                             <div>
                                 <h1>Upss!<br/> <span>No hay administradores registrados todavía.</span></h1>
                             </div>
-                        </MessageDiv>
+                        </NoDataMessage>
                 }
             </div>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Información Administrador'
                 active={modalView}
                 formModal={formView}
@@ -288,9 +299,9 @@ const Admin = ({ className }) => {
                     <InputForm isBlock type='text' text='Empresa' />
                     <InputForm isBlock type='text' text='Contraseña' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Nuevo Administrador'
                 active={modalCreate}
                 formModal={formCreate}
@@ -314,9 +325,9 @@ const Admin = ({ className }) => {
                     <InputForm type='text' text='Contraseña' />
                     <input type="submit" value='Guardar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Editar información Administrador'
                 active={modalUpdate}
                 formModal={formUpdate}
@@ -341,7 +352,7 @@ const Admin = ({ className }) => {
                     <InputForm active type='text' text='Contraseña' />
                     <input type="submit" value='Editar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
         </div>
     )

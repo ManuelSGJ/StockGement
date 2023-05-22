@@ -1,5 +1,5 @@
 import { createContext, useState ,useEffect } from "react"
-import { encryptText, decryptText } from '../functions/cryptography'
+import { encryptText, decryptText } from './cryptography'
 
 const ProfileContext = createContext()
 
@@ -22,8 +22,6 @@ const ProfileProvider = ({ children }) => {
             navBar: decryptText(JSON.parse(infoLocalStorage).navBar),
             typeUser: decryptText(JSON.parse(infoLocalStorage).typeUser),
         }
-
-        console.log(decrypted);
 
         setUser(decrypted)
     }, [])

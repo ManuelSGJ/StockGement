@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useRef, useState, useEffect } from 'react';
 
-const Input = ({ value, type, text, className, datalist, isBlock, active}) => {
+const Input = ({ value, type, text, className, datalist, isBlock, active, min, max}) => {
     const [styleLabel, setStyleLabel] = useState({})
 
     const inputField = useRef()
@@ -54,6 +54,8 @@ const Input = ({ value, type, text, className, datalist, isBlock, active}) => {
                         onFocus={animateInput}
                         onChange={animateInput}
                         disabled={isBlock}
+                        min={min}
+                        max={max}
                     />
 
                     <label style={styleLabel}>
@@ -105,7 +107,9 @@ const InputForm = styled(Input).attrs(props => ({
     text: props.text ? props.text : '',
     datalist: props.datalist ? props.datalist : false,
     isBlock: props.isBlock ? true : false,
-    active: props.active ? true : false
+    active: props.active ? true : false, 
+    min: props.min ? props.min : '',
+    max: props.max ? props.max : ''
 })
 )`
     width: ${props => props.fullInput ? '100%' : '30%'};

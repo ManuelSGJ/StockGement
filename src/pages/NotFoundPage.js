@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { FaCloud, FaArrowLeft } from "../components/Icons/IconsFontAwesome";
+import { FaCloud, FaArrowLeft } from "../images/Icons/IconsFontAwesome";
 
 const NotFound = ({className=""}) => {
     const navigate = useNavigate();

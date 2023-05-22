@@ -137,8 +137,7 @@ const NavBarOwner = styled(NavBar)`
 
     .link-selected{
         font-size: 15px;
-        color: #0EA8B0;
-        text-decoration: underline;
+        color: #435159;
     }
 `
 

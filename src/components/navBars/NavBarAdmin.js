@@ -1,5 +1,6 @@
 import {NavLink, useNavigate} from 'react-router-dom'
 import { useContext } from 'react'
+import { removeToLocalStorage } from '../../global/manageLocalStorage'
 import ProfileContext from '../../global/ProfileContext'
 import styled from 'styled-components'
 
@@ -10,12 +11,13 @@ const NavBar = ({className}) => {
 
     const logout = (event) => {
         event.preventDefault()
+
+        removeToLocalStorage('userInfo')
         appContext.updateSession({
             typeUser: '',
             fallBack: '/Login',
             navBar: ''
         })
-        
         navigate('/Login')
     }
 
@@ -157,8 +159,7 @@ const NavBarAdmin = styled(NavBar)`
 
     .link-selected{
         font-size: 15px;
-        color: #0EA8B0;
-        text-decoration: underline;
+        color: #435159;
     }
 `
 

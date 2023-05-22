@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useDebounce } from 'use-debounce'
 import styled from 'styled-components'
-import IterableComponent from '../../components/owner/IterableComponent'
-import ModalOwner from '../../components/owner/ModalOwner'
+import IterableComponent from '../../components/IterableComponent'
+import ModalForm from '../../components/ModalForm'
 import InputForm from '../../components/inputs/InputForm'
-import { decryptText } from '../../functions/cryptography'
+import { decryptText } from '../../global/cryptography'
 import Swal from 'sweetalert2'
-import Loader from '../../global/Loader'
-import MessageDiv from '../../global/MessageDiv'
-import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../components/Icons/IconsFontAwesome'
+import Loader from '../../components/Loader'
+import NoDataMessage from '../../components/NoDataMessage'
+import { FaMagnifyingGlass, FaPlus, FaTrash, FaPenToSquare, FaEye } from '../../images/Icons/IconsFontAwesome'
 
 const Owner = ({ className }) => {
     const [ownerList, setOwnerList] = useState([])
@@ -248,16 +248,16 @@ const Owner = ({ className }) => {
 
                         :
 
-                        <MessageDiv>
+                        <NoDataMessage>
                             <div>
                                 <h1>Upss!<br/> <span>No hay Owners registrados todavía.</span></h1>
                             </div>
-                        </MessageDiv>
+                        </NoDataMessage>
                     }
                 </div>
             </div>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Información Owner'
                 active={modalView}
                 formModal={formView}
@@ -272,9 +272,9 @@ const Owner = ({ className }) => {
                     <InputForm type='email' text='Email' isBlock />
                     <InputForm type='text' text='Contraseña' isBlock />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Nuevo Owner'
                 active={modalCreate}
                 formModal={formCreate}
@@ -290,9 +290,9 @@ const Owner = ({ className }) => {
                     <InputForm type='password' text='Contraseña' />
                     <input type="submit" value='Guardar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
-            <ModalOwner
+            <ModalForm
                 titleModal='Editar información Owner'
                 active={modalUpdate}
                 formModal={formUpdate}
@@ -308,7 +308,7 @@ const Owner = ({ className }) => {
                     <InputForm active type='password' text='Contraseña' />
                     <input type="submit" value='Editar' />
                 </form>
-            </ModalOwner>
+            </ModalForm>
 
         </div>
     )

@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import {Routes, Route} from 'react-router-dom'
-import ProtectView from '../global/ProtectView'
+import ProtectView from './ProtectView'
 import HomePage from '../pages/HomePage'
 import EmpresasPage from '../pages/Owners/EmpresasPage'
 import AdminPage from '../pages/Owners/AdminsPage'
@@ -10,6 +10,7 @@ import LoginPage from '../pages/LoginPage'
 import NotFoundPage from '../pages/NotFoundPage'
 import ProfileContext from '../global/ProfileContext'
 import VentasPage from '../pages/Admins/VentasPage'
+import ArticulosPage from '../pages/Admins/ArticulosPage'
 
 const Router = () => {
     const {user: userInfo} = useContext(ProfileContext.Context)
@@ -21,7 +22,7 @@ const Router = () => {
     return(
         <Routes>
 
-            {/* Owners pages */}
+            {/*//? Owners pages */}
             <Route 
                 path='/Empresas'  
                 element={
@@ -72,12 +73,12 @@ const Router = () => {
                 }
             />
 
-            {/* Admins pages */}
+            {/*//? Admins pages */}
             <Route 
                 path='/Ventas'
                 element={
                     <ProtectView 
-                        allowedUserType={''}
+                        allowedUserType={'Admin'}
                         view={<VentasPage/>}
                     />
                 }
@@ -87,8 +88,8 @@ const Router = () => {
                 path='/Articulos'
                 element={
                     <ProtectView 
-                        allowedUserType={''}
-                        view={<VentasPage/>}
+                        allowedUserType={'Admin'}
+                        view={<ArticulosPage/>}
                     />
                 }
             />

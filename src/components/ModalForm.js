@@ -1,4 +1,4 @@
-import { FaXmark } from "../Icons/IconsFontAwesome";
+import { FaXmark } from "../images/Icons/IconsFontAwesome";
 import styled from "styled-components";
 
 const ContentModal = styled.div`
@@ -52,7 +52,7 @@ const TitleModal = styled.div`
     }
 `
 
-const Modal = styled.div`
+const ModalContainer = styled.div`
     width: 45%;
     min-width: 700px;
     background-color: #fdfdfd;
@@ -82,10 +82,10 @@ const Overlay = styled.div`
     
 `
 
-const ModalOwner = ({children: ch, titleModal, active, formModal, method, setClose}) => {
+const Modal = ({children: ch, titleModal, active, formModal, method, setClose}) => {
     return(
         <Overlay active={active}>
-            <Modal active={active}>
+            <ModalContainer active={active}>
                 <TitleModal>
                     <h1>{titleModal}</h1>
 
@@ -97,9 +97,9 @@ const ModalOwner = ({children: ch, titleModal, active, formModal, method, setClo
                 <ContentModal>
                     {ch}
                 </ContentModal>
-            </Modal>
+            </ModalContainer>
         </Overlay>
     )
 }
 
-export default ModalOwner;
+export default Modal;

@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom"
-import { useContext} from "react"
-import ProfileContext from "../global/ProfileContext"
-import styled from "styled-components"
-import InputForm from "../components/inputs/InputForm"
-import Swal from "sweetalert2"
+import { Link } from 'react-router-dom'
+import { useContext} from 'react'
+import { addToLocalStorage } from '../global/manageLocalStorage'
+import { encryptText } from '../global/cryptography'
+import ProfileContext from '../global/ProfileContext'
+import styled from 'styled-components'
+import InputForm from '../components/inputs/InputForm'
+import Swal from 'sweetalert2'
 
 const Login = ({className}) => {
 
@@ -12,8 +14,13 @@ const Login = ({className}) => {
     const loginUser = async (event) => {
         event.preventDefault()
         const [user, password] = event.target
+        let url = 'http://localhost:3001/owners/login'
+        
+        if(!(isNaN(user.value))) {
+            url = 'http://localhost:3001/admins/login'
+        }
 
-        const request = await fetch('http://localhost:3001/owners/login', {
+        const request = await fetch(url, {
             method: 'POST', 
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -21,10 +28,8 @@ const Login = ({className}) => {
                 password: password.value
             })
         })
-
+        
         const {infoProcess, dataProcess, error} = await request.json()
-
-        console.log(infoProcess, dataProcess, error);
 
         if (infoProcess === 'error') {
             let errorDescription = error;
@@ -43,27 +48,34 @@ const Login = ({className}) => {
             const {userInfo} = dataProcess
             let user = {}
 
-            if (userInfo.typeUser === 'Owner') 
-            user = {
-                typeUser: 'Owner',
-                fallBack: '/Empresas',
-                navBar: 'owner'
+            if (userInfo.typeUser === 'Owner') {
+                user = {
+                    typeUser: 'Owner',
+                    fallBack: '/Empresas',
+                    navBar: 'owner'
+                }
             }
 
-            if (userInfo.typeUser === 'Admin') 
-            user = {
-                typeUser: 'Admin',
-                fallBack: '/Index',
-                navBar: 'admin'
+            if (userInfo.typeUser === 'Admin') {
+                addToLocalStorage('userInfo', {
+                    empresa: encryptText(userInfo.Admin_nit_empresa_FK)
+                })
+
+                user = {
+                    typeUser: 'Admin',
+                    fallBack: '/Ventas',
+                    navBar: 'admin'
+                }
             }
 
-            if (userInfo.typeUser === 'User') 
-            user = {
-                typeUser: 'User',
-                fallBack: '/Index',
-                navBar: 'user'
+            if (userInfo.typeUser === 'User') {
+                user = {
+                    typeUser: 'User',
+                    fallBack: '/Index',
+                    navBar: 'user'
+                }
             }
-
+            
             updateSession(user)
         }
     }   
