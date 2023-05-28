@@ -156,7 +156,6 @@ const LoginPage = styled(Login)`
 
     .box-submit button{
         cursor: pointer;
-        background: #ffffff;
         width: 40%;
         min-width: 200px;
         font-size: 1.3rem;

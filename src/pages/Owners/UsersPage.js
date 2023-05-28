@@ -84,9 +84,9 @@ const Admin = ({ className }) => {
             Swal.fire(
                 'Ha ocurrido un error',
                 error === 'userNotFound' ? 'Usuario no encontrado' : error,
-                'error'
+                'error',
             )
-
+            
             return false
         }
 
@@ -458,6 +458,7 @@ const SeccionUser = styled.div`
         pointer-events: none;
         user-select: none;
         font-size: 14px;
+        background-color: transparent;
     }
 
 `

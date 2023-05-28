@@ -15,15 +15,21 @@ const ProfileProvider = ({ children }) => {
                 fallBack: encryptText('/Login'),
                 navBar: encryptText('')
             }))
+
+            setUser({
+                fallBack: '/Login',
+                navBar: '',
+                typeUser: '',
+            })
+        }else{
+            const decrypted = {
+                fallBack: decryptText(JSON.parse(infoLocalStorage).fallBack),
+                navBar: decryptText(JSON.parse(infoLocalStorage).navBar),
+                typeUser: decryptText(JSON.parse(infoLocalStorage).typeUser),
+            }    
+            setUser(decrypted)
         }
 
-        const decrypted = {
-            fallBack: decryptText(JSON.parse(infoLocalStorage).fallBack),
-            navBar: decryptText(JSON.parse(infoLocalStorage).navBar),
-            typeUser: decryptText(JSON.parse(infoLocalStorage).typeUser),
-        }
-
-        setUser(decrypted)
     }, [])
 
     const updateSession = (newUSer) => {
@@ -46,8 +52,10 @@ const ProfileProvider = ({ children }) => {
     )
 }
 
-export default {
+const Context = {
     Context: ProfileContext,
     Provider: ProfileProvider,
     Consumer: ProfileContext.Consumer
 }
+
+export default Context

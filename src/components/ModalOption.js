@@ -1,26 +1,14 @@
-import { FaXmark, FaArrowLeft } from "../images/Icons/IconsFontAwesome";
+import { FaXmark } from "../images/Icons/IconsFontAwesome";
 import styled from "styled-components";
 
 const ContentModal = styled.div`
     position: relative;
     padding: 2rem;
     min-height: 45vh;
-
-    input[type='submit']{
-        cursor: pointer;
-        position: absolute;
-        bottom: 4%;
-        right: 4%;
-        border: none;
-        border-radius: 7px;
-        padding: 10px 20px;
-        color: #ffffff;
-        background-color: #54B9D9;
-    }
-
-    input[type='submit']:hover{
-        background-color: #4699B3;
-    }
+    display: flex;
+    flex-direction: ${({horientation}) => horientation === 'vertical' ? 'colmun' : 'row'};
+    align-items: flex-start;
+    flex-wrap: ${({horientation}) => horientation === 'vertical' ? 'nowrap' : 'wrap'};
 `
 
 const TitleModal = styled.div`
@@ -50,11 +38,6 @@ const TitleModal = styled.div`
         border-radius: 50%;
         box-shadow: 4px 4px 10px 0px rgba(84, 185, 217, 0.20);
     }
-
-
-    button.back{
-        right: 80px;
-    }
 `
 
 const ModalContainer = styled.div`
@@ -65,7 +48,7 @@ const ModalContainer = styled.div`
     box-shadow: 3px 3px 5px 0px rgba(84, 185, 217, 0.49);
     transition: all .5s ease-in-out;
     overflow: hidden;
-    transform: ${props => props.active ? 'translateY(-5vw)' : 'translateY(-15vw)'};
+    transform: ${props => props.active ? 'translateY(-5vw)': 'translateY(-15vw)'};
 `
 
 const Overlay = styled.div`
@@ -82,32 +65,24 @@ const Overlay = styled.div`
     transition: all .3s ease-in-out;
 
 
-    visibility: ${props => props.active ? 'visible' : 'hidden'};
+    visibility: ${props => props.active ? 'visible':'hidden'};
     opacity: ${props => props.active ? 1 : 0};
     
 `
 
-const ModalForm = ({ children: ch, titleModal, active, formModal, method, setClose, back, modalBack }) => {
-    return (
+const ModalOption = ({children: ch, titleModal, active, method, setClose, horientation='vertical'}) => {
+    return(
         <Overlay active={active}>
             <ModalContainer active={active}>
                 <TitleModal>
                     <h1>{titleModal}</h1>
 
-                    {
-                        back && (
-                            <button title='Regresar' className=' back'  onClick={() => method(setClose, formModal, modalBack)}>
-                                {FaArrowLeft}
-                            </button>
-                        )
-                    }
-
-                    <button title='Cerrar' onClick={() => method(setClose, formModal)}>
+                    <button onClick={() => method(setClose)}>
                         {FaXmark}
                     </button>
                 </TitleModal>
 
-                <ContentModal>
+                <ContentModal horientation={horientation}>
                     {ch}
                 </ContentModal>
             </ModalContainer>
@@ -115,4 +90,4 @@ const ModalForm = ({ children: ch, titleModal, active, formModal, method, setClo
     )
 }
 
-export default ModalForm;
+export default ModalOption;

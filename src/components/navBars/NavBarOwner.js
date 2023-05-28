@@ -89,7 +89,6 @@ const NavBarOwner = styled(NavBar)`
     top: 0;
     display: flex;
     justify-content: space-between;
-    background-color: #fff;
     padding:  5px 20px;
     box-shadow: 0px 4px 4px 0px rgba(84, 185, 217, .2);
     z-index: 9;
@@ -137,7 +136,7 @@ const NavBarOwner = styled(NavBar)`
 
     .link-selected{
         font-size: 15px;
-        color: #435159;
+        color: #54B9D9;
     }
 `
 

@@ -1,26 +1,49 @@
 import styled from 'styled-components'
+import ModalOption from '../../components/ModalOption'
 import ModalForm from '../../components/ModalForm'
 import InputForm from '../../components/inputs/InputForm'
+import MenuList from '../../components/MenuList'
 import { useRef, useState, useEffect } from 'react'
 import { FaPlus, FaFilter } from '../../images/Icons/IconsFontAwesome'
 
 const Articulos = ({ className }) => {
 
+    //*modals
     const [modalNewArticle, setModalNewArticle] = useState(false)
     const [modalInfoArticle, setModalInfoArticle] = useState(false)
     const [modalUpdateArticle, setModalUpdateArticle] = useState(false)
     const [modalFiltersArticle, setModalFiltersArticle] = useState(false)
-    const [modalNewGroup, setModalNewGroup] = useState(false)
-    const [modalNew, setModalNew] = useState(false)
+    const [modalGestionGrupos, setModalGestionGrupos] = useState(false)
+    const [modalGestionMarcas, setModalGestionMarcas] = useState(false)
+    const [modalNewGrupo, setModalNewGrupo] = useState(false)
+    const [modalUpdateGrupo, setModalUpdateGrupo] = useState(false)
+    const [modalDeleteGrupo, setModalDeleteGrupo] = useState(false)
+    const [modalNewMarca, setModalNewMarca] = useState(false)
+    const [modalUpdateMarca, setModalUpdateMarca] = useState(false)
+    const [modalDeleteMarca, setModalDeleteMarca] = useState(false)
 
+    //* forms
     const formNewArticle = useRef()
     const formInfoArticle = useRef()
     const formUpdateArticle = useRef()
     const formFiltersArticle = useRef()
-
-    const closeModal = (showModal, modalForm) => {
+    const formNewGrupo = useRef()
+    const formUpdateGrupo = useRef()
+    const formDeleteGrupo = useRef()
+    const formNewMarca = useRef()
+    const formUpdateMarca = useRef()
+    const formDeleteMarca = useRef()
+    
+    //*methods
+    const closeModal = (showModal, modalForm, backModal) => {
+        if (modalForm) {
+            modalForm.current.reset()
+        }
         showModal(false)
-        modalForm.current.reset()
+
+        if (backModal) {
+            backModal(true)
+        }
     }
 
     return (
@@ -37,11 +60,14 @@ const Articulos = ({ className }) => {
                         {FaFilter}
                     </button>
 
-                    <button>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
+                    <MenuList
+                        size='large'
+                        items={[
+                            {description: 'Gestion de grupos', action: () => setModalGestionGrupos(true)},
+                            {description: 'Gestion de marcas', action: () => console.log('gestion de Grupos')}
+                        ]}
+
+                    />
                 </div>
             </div>
 
@@ -83,6 +109,82 @@ const Articulos = ({ className }) => {
                     <InputForm type='text' text='campo'/>
                 </form>   
             </ModalForm>
+
+            {/*//*modales gestion de grupos  */}
+            <ModalOption
+                titleModal='Gestion de grupos'
+                active={modalGestionGrupos}
+                setClose={setModalGestionGrupos}
+                method={closeModal}
+            >
+                <ButtonOption onClick={()=>{
+                    setModalGestionGrupos(false)
+                    setModalNewGrupo(true)
+                }}>
+                    Crear nuevo grupo
+                </ButtonOption>
+
+                <ButtonOption onClick={()=>{
+                    setModalGestionGrupos(false)
+                    setModalUpdateGrupo(true)
+                }}>
+                    Actualizar grupo
+                </ButtonOption>
+
+                <ButtonOption onClick={()=>{
+                    setModalGestionGrupos(false)
+                    setModalDeleteGrupo(true)
+                }}>
+                    Eliminar grupo
+                </ButtonOption>
+            </ModalOption>
+
+            <ModalForm
+                titleModal='Nuevo grupo'
+                active={modalNewGrupo}
+                formModal={formNewGrupo}
+                setClose={setModalNewGrupo}
+                method={closeModal}
+                back={true}
+                modalBack={setModalGestionGrupos}
+            >
+                <form ref={formNewGrupo}>
+                    <InputForm type='text' text='Nombre grupo' />
+                    <input type='submit' value='Guardar' />
+                </form>
+            </ModalForm>
+
+            <ModalForm
+                titleModal='Editar grupo'
+                active={modalUpdateGrupo}
+                formModal={formUpdateGrupo}
+                setClose={setModalUpdateGrupo}
+                method={closeModal}
+                back={true}
+                modalBack={setModalGestionGrupos}
+            >
+                <form ref={formUpdateGrupo}>
+                    <InputForm type='text' text='Nombre grupo' />
+                    <input type='submit' value='Guardar' />
+                </form>
+            </ModalForm>
+
+            <ModalForm
+                titleModal='Eliminar grupo'
+                active={modalDeleteGrupo}
+                formModal={formDeleteGrupo}
+                setClose={setModalDeleteGrupo}
+                method={closeModal}
+                back={true}
+                modalBack={setModalGestionGrupos}
+            >
+                <form ref={formDeleteGrupo}>
+                    <InputForm type='text' text='Nombre grupo' />
+                    <input type='submit' value='Guardar' />
+                </form>
+            </ModalForm>
+            {/*//*modales gestion de grupos - cierre */}
+            
         </div>
     )
 }
@@ -106,7 +208,7 @@ const ArticulosPage = styled(Articulos)`
         display: flex;
     }
 
-    .box-filter button{
+    .box-filter > button{
         margin: 5px 10px;
         font-size: 20px;
         cursor: pointer;
@@ -138,6 +240,23 @@ const ArticulosPage = styled(Articulos)`
         flex-wrap: wrap;
     }
 
+`
+
+const ButtonOption = styled.button`
+    margin: 10px;
+    padding: 5px 20px;
+    width: fit-content;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    background-color: #F5F5F5;
+    box-shadow: 3px 3px 5px 0px rgba(84, 185, 217, .49);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+
+    :hover{
+        background-color: #f0f0f0;
+    }
 `
 
 export default ArticulosPage
