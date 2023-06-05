@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useContext} from 'react'
 import { addToLocalStorage } from '../global/manageLocalStorage'
-import { encryptText } from '../global/cryptography'
 import ProfileContext from '../global/ProfileContext'
 import styled from 'styled-components'
 import InputForm from '../components/inputs/InputForm'
@@ -58,7 +57,7 @@ const Login = ({className}) => {
 
             if (userInfo.typeUser === 'Admin') {
                 addToLocalStorage('userInfo', {
-                    empresa: encryptText(userInfo.Admin_nit_empresa_FK)
+                    empresa: userInfo.Admin_nit_empresa_FK
                 })
 
                 user = {

@@ -263,10 +263,7 @@ const Admin = ({ className }) => {
                 {
                     AdminList.length > 0 ?
                         AdminList.map(({ Admin_cedula: id, Admin_nombre: nombre, Admin_apellido: apellido, Empresa: { empresa_razon_social: empresa } }) => (
-                            <IterableComponent
-                                key={id}
-                                title={nombre + ' ' + apellido}
-                                description={empresa}
+                            <IterableComponent key={id} title={nombre + ' ' + apellido} description={empresa}
                                 methods={[
                                     { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
                                     { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
@@ -283,13 +280,7 @@ const Admin = ({ className }) => {
                 }
             </div>
 
-            <ModalForm
-                titleModal='Información Administrador'
-                active={modalView}
-                formModal={formView}
-                setClose={setModalView}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Información Administrador' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
                     <InputForm isBlock type='number' text='Cedula' />
                     <InputForm isBlock type='text' text='Nombre' />
@@ -301,13 +292,7 @@ const Admin = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Nuevo Administrador'
-                active={modalCreate}
-                formModal={formCreate}
-                setClose={setModalCreate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Nuevo Administrador' active={modalCreate} formModal={formCreate} setClose={setModalCreate} method={closeModal}>
                 <form ref={formCreate} onSubmit={(event) => { event.preventDefault(); handleSubmit('create', event.target) }}>
                     <InputForm type='number' text='Cedula' />
                     <InputForm type='text' text='Nombre' />
@@ -327,23 +312,14 @@ const Admin = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Editar información Administrador'
-                active={modalUpdate}
-                formModal={formUpdate}
-                setClose={setModalUpdate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Editar información Administrador' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
                     <InputForm active type='number' text='Cedula' />
                     <InputForm active type='text' text='Nombre' />
                     <InputForm active type='text' text='Apellido' />
                     <InputForm active type='text' text='Telefono' />
                     <InputForm active type='text' text='Dirección' />
-                    <InputForm
-                        active
-                        type='dataInput'
-                        text='Empresa'
+                    <InputForm active type='dataInput' text='Empresa'
                         datalist={{
                             data: dataList,
                             nameList: 'list-empresas-edit'
@@ -353,7 +329,6 @@ const Admin = ({ className }) => {
                     <input type="submit" value='Editar' />
                 </form>
             </ModalForm>
-
         </div>
     )
 }

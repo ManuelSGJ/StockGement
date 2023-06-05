@@ -232,12 +232,8 @@ const Owner = ({ className }) => {
                 <div className='content-page'>
                     {
                         ownerList.length > 0 ?
-
                         ownerList.map(({ id, nombre, apellido }) => (
-                            <IterableComponent
-                                key={id}
-                                title={nombre + ' ' + apellido}
-                                description=' '
+                            <IterableComponent key={id} title={nombre + ' ' + apellido} description=' ' 
                                 methods={[
                                     { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
                                     { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
@@ -245,9 +241,7 @@ const Owner = ({ className }) => {
                                 ]}
                             />
                         ))
-
                         :
-
                         <NoDataMessage>
                             <div>
                                 <h1>Upss!<br/> <span>No hay Owners registrados todavía.</span></h1>
@@ -257,13 +251,7 @@ const Owner = ({ className }) => {
                 </div>
             </div>
 
-            <ModalForm
-                titleModal='Información Owner'
-                active={modalView}
-                formModal={formView}
-                setClose={setModalView}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Información Owner' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
                     <InputForm type='number' text='Cedula' isBlock />
                     <InputForm type='text' text='Nombre' isBlock />
@@ -274,13 +262,7 @@ const Owner = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Nuevo Owner'
-                active={modalCreate}
-                formModal={formCreate}
-                setClose={setModalCreate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Nuevo Owner' active={modalCreate} formModal={formCreate} setClose={setModalCreate} method={closeModal}>
                 <form ref={formCreate} onSubmit={(event) => { event.preventDefault(); handleSubmit('create', event.target) }}>
                     <InputForm type='number' text='Cedula' />
                     <InputForm type='text' text='Nombre' />
@@ -292,13 +274,7 @@ const Owner = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Editar información Owner'
-                active={modalUpdate}
-                formModal={formUpdate}
-                setClose={setModalUpdate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Editar información Owner' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
                     <InputForm active type='number' text='Cedula' />
                     <InputForm active type='text' text='Nombre' />

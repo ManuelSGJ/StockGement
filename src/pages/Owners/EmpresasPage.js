@@ -227,10 +227,7 @@ const Empresas = ({ className }) => {
                 {
                     empresasList.length > 0 ?
                     empresasList.map(({empresa_NIT: id, empresa_razon_social: nombre, empresa_fecha_licencia: fechaExp }) => (
-                            <IterableComponent
-                                key={id}
-                                title={nombre}
-                                description={`Fexha exp licencia: `+fechaExp}
+                            <IterableComponent key={id} title={nombre} description={`Fexha exp licencia: `+fechaExp}
                                 methods={[
                                     { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
                                     { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
@@ -248,13 +245,7 @@ const Empresas = ({ className }) => {
                 }
             </div>
 
-            <ModalForm
-                titleModal='Información Empresa'
-                active={modalView}
-                formModal={formView}
-                setClose={setModalView}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Información Empresa' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
                     <InputForm isBlock type='number' text='Nit Empresa' />
                     <InputForm isBlock type='text' text='Razon Social' />
@@ -264,13 +255,7 @@ const Empresas = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Nueva Empresa'
-                active={modalCreate}
-                formModal={formCreate}
-                setClose={setModalCreate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Nueva Empresa' active={modalCreate} formModal={formCreate} setClose={setModalCreate} method={closeModal}>
                 <form ref={formCreate} onSubmit={(event) => { event.preventDefault(); handleSubmit('create', event.target) }}>
                     <InputForm type='number' text='Nit Empresa' />
                     <InputForm type='text' text='Razon Social' />
@@ -281,13 +266,7 @@ const Empresas = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Editar información empresa'
-                active={modalUpdate}
-                formModal={formUpdate}
-                setClose={setModalUpdate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Editar información empresa' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
                     <InputForm active type='number' text='Nit Empresa' />
                     <InputForm active type='text' text='Razon Social' />
@@ -297,7 +276,6 @@ const Empresas = ({ className }) => {
                     <input type="submit" value='Editar' />
                 </form>
             </ModalForm>
-
         </div>
     )
 }

@@ -279,34 +279,25 @@ const Admin = ({ className }) => {
             <div className='content-page'>
                 {
                     UsersList.length > 0 ?
-                        UsersList.map(({ User_cedula: id, User_nombre: nombre, User_apellido: apellido, Empresa: { empresa_razon_social: empresa } }) => (
-                            <IterableComponent
-                                key={id}
-                                title={nombre + ' ' + apellido}
-                                description={empresa}
-                                methods={[
-                                    { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
-                                    { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
-                                    { description: FaTrash, action: () => deleteEmpresa(id) },
-                                ]}
-                            />
-                        ))
-                        :
-                        <NoDataMessage>
-                            <div>
-                                <h1>Upss!<br/> <span>No hay usuarios registrados todavía.</span></h1>
-                            </div>
-                        </NoDataMessage>
+                    UsersList.map(({ User_cedula: id, User_nombre: nombre, User_apellido: apellido, Empresa: { empresa_razon_social: empresa } }) => (
+                        <IterableComponent key={id} title={nombre + ' ' + apellido} description={empresa}
+                            methods={[
+                                { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
+                                { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
+                                { description: FaTrash, action: () => deleteEmpresa(id) },
+                            ]}
+                        />
+                    ))
+                    :
+                    <NoDataMessage>
+                        <div>
+                            <h1>Upss!<br/> <span>No hay usuarios registrados todavía.</span></h1>
+                        </div>
+                    </NoDataMessage>
                 }
             </div>
 
-            <ModalForm
-                titleModal='Información Usuario'
-                active={modalView}
-                formModal={formView}
-                setClose={setModalView}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Información Usuario' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
                     <InputForm isBlock type='number' text='Cedula' />
                     <InputForm isBlock type='text' text='Nombre' />
@@ -329,13 +320,7 @@ const Admin = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Nuevo Usuario'
-                active={modalCreate}
-                formModal={formCreate}
-                setClose={setModalCreate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Nuevo Usuario' active={modalCreate} formModal={formCreate} setClose={setModalCreate} method={closeModal}>
                 <form ref={formCreate} onSubmit={(event) => { event.preventDefault(); handleSubmit('create', event.target) }}>
                     <InputForm type='number' text='Cedula' />
                     <InputForm type='text' text='Nombre' />
@@ -366,13 +351,7 @@ const Admin = ({ className }) => {
                 </form>
             </ModalForm>
 
-            <ModalForm
-                titleModal='Editar información Usuario'
-                active={modalUpdate}
-                formModal={formUpdate}
-                setClose={setModalUpdate}
-                method={closeModal}
-            >
+            <ModalForm titleModal='Editar información Usuario' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
                     <InputForm active type='number' text='Cedula' />
                     <InputForm active type='text' text='Nombre' />
@@ -404,7 +383,6 @@ const Admin = ({ className }) => {
                     <input type="submit" value='Editar' />
                 </form>
             </ModalForm>
-
         </div>
     )
 }

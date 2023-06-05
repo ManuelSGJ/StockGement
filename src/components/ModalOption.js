@@ -1,4 +1,4 @@
-import { FaXmark } from "../images/Icons/IconsFontAwesome";
+import { FaXmark, FaArrowLeft} from "../images/Icons/IconsFontAwesome";
 import styled from "styled-components";
 
 const ContentModal = styled.div`
@@ -38,6 +38,10 @@ const TitleModal = styled.div`
         border-radius: 50%;
         box-shadow: 4px 4px 10px 0px rgba(84, 185, 217, 0.20);
     }
+
+    button.back{
+        right: 80px;
+    }
 `
 
 const ModalContainer = styled.div`
@@ -70,12 +74,20 @@ const Overlay = styled.div`
     
 `
 
-const ModalOption = ({children: ch, titleModal, active, method, setClose, horientation='vertical'}) => {
+const ModalOption = ({children: ch, titleModal, active, method, setClose, horientation='vertical', back, modalBack}) => {
     return(
         <Overlay active={active}>
             <ModalContainer active={active}>
                 <TitleModal>
                     <h1>{titleModal}</h1>
+
+                    {
+                        back && (
+                            <button title='Regresar' className=' back'  onClick={() => method(setClose, null, modalBack)}>
+                                {FaArrowLeft}
+                            </button>
+                        )
+                    }
 
                     <button onClick={() => method(setClose)}>
                         {FaXmark}

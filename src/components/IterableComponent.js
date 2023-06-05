@@ -67,8 +67,8 @@ const IterableComponent = styled(Iterable).attrs(props => ({
 )`
     position: relative;
     width: 20%;
-    min-height: 100px;
-    margin:  30px;
+    min-height: ${props => props.smallMargin ? '70px' : '100px'};
+    margin:  ${props => props.smallMargin ? '10px' : '30px'};
     border-radius: 8px;
     display: flex;
     flex-direction: column;

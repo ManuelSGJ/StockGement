@@ -15,6 +15,10 @@ const GlobalStyle = createGlobalStyle`
     body{
         min-height: 100vh;
     }
+
+    h1, h2{
+        font-weight: lighter !important;
+    }
 `
 
 export default GlobalStyle

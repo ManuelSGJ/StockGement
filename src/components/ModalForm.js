@@ -96,7 +96,7 @@ const ModalForm = ({ children: ch, titleModal, active, formModal, method, setClo
 
                     {
                         back && (
-                            <button title='Regresar' className=' back'  onClick={() => method(setClose, formModal, modalBack)}>
+                            <button title='Regresar' className='back'  onClick={() => method(setClose, formModal, modalBack)}>
                                 {FaArrowLeft}
                             </button>
                         )
