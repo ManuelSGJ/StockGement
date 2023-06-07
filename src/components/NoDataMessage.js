@@ -1,7 +1,7 @@
 import styled from "styled-components"
 
 const NoDataMessage = styled.div`
-    height: 70vh;
+    height: ${props => props.small ? '30vh' : '70vh'};
     width: 100%;
     display: flex;
     justify-content: center;

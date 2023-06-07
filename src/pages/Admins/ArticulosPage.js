@@ -8,8 +8,8 @@ import ModalOption from '../../components/ModalOption'
 import NoDataMessage from '../../components/NoDataMessage'
 import Swal from 'sweetalert2'
 import { useRef, useState, useEffect } from 'react'
-import { FaPlus, FaFilter, FaPenToSquare, FaTrash } from '../../images/Icons/IconsFontAwesome'
 import { getToLocalStorage } from '../../global/manageLocalStorage'
+import { FaPlus, FaFilter, FaPenToSquare, FaTrash } from '../../images/Icons/IconsFontAwesome'
 
 const Articulos = ({ className }) => {
 
@@ -17,23 +17,29 @@ const Articulos = ({ className }) => {
     const [isFetching, setIsFetching] = useState(false)
 
     //* states info
-    const [listGroups, setListGrpups] = useState([])
+    const [listGroups, setListGroups] = useState([])
+    const [listBrands, setListBrands] = useState([])
 
     //*states modals
     const [modalNewArticle, setModalNewArticle] = useState(false)
     const [modalFiltersArticle, setModalFiltersArticle] = useState(false)
     const [modalGestionGroups, setModalGestionGroups] = useState(false)
+    const [modalGestionBrands, setModalGestionBrands] = useState(false)
     const [modalNewGroup, setModalNewGroup] = useState(false)
     const [modalViewGroup, setModalViewGroup] = useState(false)
+    const [modalNewBrand, setModalNewBrand] = useState(false)
+    const [modalViewBrand, setModalViewBrand] = useState(false)
 
     //* forms
     const formNewArticle = useRef()
     const formInfoArticle = useRef()
     const formNewGroup = useRef()
+    const formNewBrand = useRef()
 
     //* effects
     useEffect(() => {
         loadGroups()
+        loadBrands()
     }, [])
 
     //*methods
@@ -148,6 +154,69 @@ const Articulos = ({ className }) => {
         })
     }
 
+    const handleSubmitBrands = async (typeAction, valueBrand, idBrand) => {
+        let url, method
+        let form = null
+        let setClose = setModalViewBrand
+
+        if (!valueBrand.trim()) {
+            Swal.fire({
+                title: 'Datos inválidos',
+                icon: 'info'
+            })
+            return false
+        }
+
+        if (typeAction === 'create') {
+            form = formNewBrand
+            setClose = setModalNewBrand
+            method = 'POST'
+            url = 'http://localhost:3001/admins/createBrand'
+        }
+
+        if (typeAction === 'update') {
+            method = 'PUT'
+            url = 'http://localhost:3001/admins/updateBrand'
+        }
+
+        if (typeAction === 'delete') {
+            method = 'DELETE'
+            url = 'http://localhost:3001/admins/deleteBrand'
+        }
+
+        const params = {
+            method,
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                nameBrand: valueBrand,
+                empresaBrand: getToLocalStorage('userInfo', 'empresa'),
+                idBrand: idBrand ? idBrand : ''
+            })
+        }
+
+        const response = await fetch(url, params)
+        const { error, infoProcess } = await response.json()
+
+        if (infoProcess === 'error') {
+            let messageError = (error === 'brandNotFound') ? 'Marca no encontrada' : 'No se pudo crear la marca, revise le información enviada';
+
+            Swal.fire(
+                'Ha ocurrido un error',
+                messageError,
+                'error'
+            )
+            return false
+        }
+
+        Swal.fire({
+            title: 'operacion exitosa!',
+            icon: 'success',
+        }).then(() => {
+            closeModal(setClose, form, setModalGestionBrands)
+            loadBrands()
+        })
+    }
+
     const loadGroups = async () => {
         setIsFetching(true)
         const params = new URLSearchParams()
@@ -156,7 +225,33 @@ const Articulos = ({ className }) => {
         const response = await fetch('http://localhost:3001/admins/findGroups?' + params.toString())
         const { dataProcess } = await response.json()
 
-        setListGrpups(dataProcess)
+        if (dataProcess === 'groups not found') {
+            
+            setListGroups([])
+            setIsFetching(false)
+            return false
+        }
+
+        setListGroups(dataProcess)
+        setIsFetching(false)
+    }
+
+    const loadBrands = async () => {
+        setIsFetching(true)
+        const params = new URLSearchParams()
+        params.append('empresa', getToLocalStorage('userInfo', 'empresa'))
+
+        const response = await fetch('http://localhost:3001/admins/findBrands?' + params.toString())
+        const { dataProcess } = await response.json()
+
+        if (dataProcess === 'brands not found') {
+            
+            setListBrands([])
+            setIsFetching(false)
+            return false
+        }
+
+        setListBrands(dataProcess)
         setIsFetching(false)
     }
 
@@ -180,7 +275,7 @@ const Articulos = ({ className }) => {
                         size='large'
                         items={[
                             { description: 'Gestion de grupos', action: () => setModalGestionGroups(true) },
-                            { description: 'Gestion de marcas', action: () => console.log('gestion de marcas') }
+                            { description: 'Gestion de marcas', action: () => setModalGestionBrands(true) }
                         ]}
                     />
                 </div>
@@ -256,14 +351,67 @@ const Articulos = ({ className }) => {
                             />
                         ))
                         :
-                        <NoDataMessage>
+                        <NoDataMessage small>
                             <div>
-                                <h1>Upss!<br /> <span>No hay grupos registradas todavía.</span></h1>
+                                <h1>Upss!<br /> <span>No hay grupos registrados todavía.</span></h1>
                             </div>
                         </NoDataMessage>
                 }
             </ModalOption>
             {/*//* modales gestion de groups - cierre */}
+
+
+            {/*//* modales gestion de marcas  */}
+            <ModalOption titleModal='Gestion de marcas' active={modalGestionBrands} setClose={setModalGestionBrands} method={closeModal}>
+                <ButtonOption onClick={() => {
+                    setModalGestionBrands(false)
+                    setModalNewBrand(true)
+                }}>
+                    Nueva marca
+                </ButtonOption>
+
+                <ButtonOption onClick={() => {
+                    setModalGestionBrands(false)
+                    setModalViewBrand(true)
+                }}>
+                    Gestionar marcas
+                </ButtonOption>
+            </ModalOption>
+
+            <ModalForm titleModal='Nueva marca' active={modalNewBrand} formModal={formNewBrand} setClose={setModalNewBrand} method={closeModal} back={true} modalBack={setModalGestionBrands}>
+                <form ref={formNewBrand} onSubmit={(evt) => {
+                    evt.preventDefault()
+                    handleSubmitBrands('create', evt.target[0].value, null)
+                }}>
+                    <InputForm type='text' text='Nombre de la marca' />
+                    <input type='submit' value='Guardar' />
+                </form>
+            </ModalForm>
+
+            <ModalOption titleModal='Mis marcas' active={modalViewBrand} setClose={setModalViewBrand} method={closeModal} back={true} modalBack={setModalGestionBrands}>
+                {
+                    listBrands.length > 0 ?
+                        listBrands.map(({ Marca_codigo, Marca_nombre }) => (
+                            <IterableComponent
+                                key={Marca_codigo}
+                                title={Marca_nombre}
+                                description=' '
+                                smallMargin={true}
+                                methods={[
+                                    { description: FaPenToSquare, action: () => handleConfirm('update', Marca_codigo, handleSubmitBrands, Marca_nombre) },
+                                    { description: FaTrash, action: () => handleConfirm('delete', Marca_codigo, handleSubmitBrands, Marca_nombre) }
+                                ]}
+                            />
+                        ))
+                        :
+                        <NoDataMessage small>
+                            <div>
+                                <h1>Upss!<br /> <span>No hay marcas registradas todavía.</span></h1>
+                            </div>
+                        </NoDataMessage>
+                }
+            </ModalOption>
+            {/*//* modales gestion de marcas - cierre */}
         </div>
     )
 }
