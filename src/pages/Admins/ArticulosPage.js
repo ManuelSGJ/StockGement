@@ -6,6 +6,7 @@ import MenuList from '../../components/MenuList'
 import ModalForm from '../../components/ModalForm'
 import ModalOption from '../../components/ModalOption'
 import NoDataMessage from '../../components/NoDataMessage'
+import useDataList from '../../global/useDataList'
 import Swal from 'sweetalert2'
 import { useRef, useState, useEffect } from 'react'
 import { getToLocalStorage } from '../../global/manageLocalStorage'
@@ -19,6 +20,8 @@ const Articulos = ({ className }) => {
     //* states info
     const [listGroups, setListGroups] = useState([])
     const [listBrands, setListBrands] = useState([])
+    const [datalistGroups, setDatalistGroups] = useDataList()
+    const [datalistBrands, setDatalistBrands] = useDataList()
 
     //*states modals
     const [modalNewArticle, setModalNewArticle] = useState(false)
@@ -89,6 +92,47 @@ const Articulos = ({ className }) => {
                 }
             })
         }
+    }
+
+    const handleSubmitArticles = async (typeAction, form) => { 
+        let  url, method
+
+        const [artCode, artName, artSalePrice, artPercentajeIVA, artPurchasePrice, artUnitMinSale, artNotifyCant, artBrand, artGroup, artInfoAditional, artMarginGain] = form
+
+        const data = {
+            artCode,
+            artName,
+            artSalePrice,
+            artPercentajeIVA,
+            artPurchasePrice,
+            artUnitMinSale,
+            artNotifyCant,
+            artBrand,
+            artGroup,
+            artInfoAditional,
+            artMarginGain
+        }
+
+        if (typeAction === 'create') {
+            method = 'POST'
+            url = 'http://localhost:3001/admins/createArticle'
+        }
+
+        if (typeAction === 'update') {
+            method = 'PUT'
+            url = 'http://localhost:300/admins/updateArticle'
+        }
+
+        const params = {
+            method,
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }
+
+        const response = await fetch(url, params)
+        const dataResponse = await response.json()
+
+        console.log(dataResponse);
     }
 
     const handleSubmitGroups = async (typeAction, valueGroup, idGroup) => {
@@ -232,6 +276,9 @@ const Articulos = ({ className }) => {
             return false
         }
 
+        const allowedKeys = ['Grupo_codigo', 'Grupo_nombre']
+
+        setDatalistGroups([dataProcess, allowedKeys])
         setListGroups(dataProcess)
         setIsFetching(false)
     }
@@ -245,12 +292,14 @@ const Articulos = ({ className }) => {
         const { dataProcess } = await response.json()
 
         if (dataProcess === 'brands not found') {
-            
             setListBrands([])
             setIsFetching(false)
             return false
         }
 
+        const allowedKeys = ['Marca_codigo', 'Marca_nombre']
+        
+        setDatalistBrands([dataProcess, allowedKeys])
         setListBrands(dataProcess)
         setIsFetching(false)
     }
@@ -286,7 +335,7 @@ const Articulos = ({ className }) => {
             </div>
 
             <ModalForm titleModal='Nuevo articulo' active={modalNewArticle} formModal={formNewArticle} setClose={setModalNewArticle} method={closeModal}>
-                <form ref={formNewArticle}>
+                <form ref={formNewArticle} onSubmit={(evt) => {evt.preventDefault(); handleSubmitArticles('create', formNewArticle.current)}}>
                     <InputForm type='number' text='Código de barras' min='0' />
                     <InputForm type='text' text='Nombre' />
                     <InputForm type='number' text='Cantidad' min='0' />
@@ -295,10 +344,25 @@ const Articulos = ({ className }) => {
                     <InputForm type='number' text='Precio de compra' min='0' />
                     <InputForm type='number' text='Unidad minima de venta' min='0' />
                     <InputForm type='number' text='Notificacion de cantidad' min='0' />
-                    <InputForm type='text' text='Marca del articulo' />
-                    <InputForm type='text' text='Grupo del articulo' />
+                    <InputForm 
+                        type='dataInput' 
+                        text='Marca del articulo' 
+                        datalist={{
+                            data: datalistBrands,
+                            nameList: 'listBrands'
+                        }}
+                    />
+                    <InputForm 
+                        type='dataInput' 
+                        text='Grupo del articulo' 
+                        datalist={{
+                            data: datalistGroups,
+                            nameList: 'listGroups'
+                        }}
+                    />
                     <InputForm type='text' text='Información adicional' />
                     <InputForm type='text' text='Margen de ganancia' />
+                    <input type='submit' value='Guardar' />
                 </form>
             </ModalForm>
 
@@ -307,6 +371,7 @@ const Articulos = ({ className }) => {
                     <InputForm type='text' text='campo' />
                 </form>
             </ModalForm>
+
 
             {/*//* modales gestion de groups  */}
             <ModalOption titleModal='Gestion de grupos' active={modalGestionGroups} setClose={setModalGestionGroups} method={closeModal}>
