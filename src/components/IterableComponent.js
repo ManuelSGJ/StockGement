@@ -69,6 +69,7 @@ const IterableComponent = styled(Iterable).attrs(props => ({
     width: 20%;
     min-height: ${props => props.smallMargin ? '70px' : '100px'};
     margin:  ${props => props.smallMargin ? '10px' : '30px'};
+    padding: 10px;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -92,8 +93,8 @@ const IterableComponent = styled(Iterable).attrs(props => ({
 
     > button{
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 0px;
+        right: 0px;
         padding: 10px;
         cursor: pointer;
         display: flex;

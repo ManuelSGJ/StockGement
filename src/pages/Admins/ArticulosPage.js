@@ -8,20 +8,36 @@ import ModalOption from '../../components/ModalOption'
 import NoDataMessage from '../../components/NoDataMessage'
 import useDataList from '../../global/useDataList'
 import Swal from 'sweetalert2'
+import ProfileContext from './../../global/ProfileContext'
+import { useContext } from 'react'
 import { useRef, useState, useEffect } from 'react'
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { InputText } from 'primereact/inputtext';
+import { classNames } from 'primereact/utils';
 import { getToLocalStorage } from '../../global/manageLocalStorage'
 import { FaPlus, FaFilter, FaPenToSquare, FaTrash } from '../../images/Icons/IconsFontAwesome'
 
 const Articulos = ({ className }) => {
 
+    const {updateSession} = useContext(ProfileContext.Context)
+
     //* states process
     const [isFetching, setIsFetching] = useState(false)
 
     //* states info
+    const [listArticles, setListArticles] = useState([])
     const [listGroups, setListGroups] = useState([])
     const [listBrands, setListBrands] = useState([])
+    const [pricePurschaseArticle, setPricePurschaseArticle] = useState(null)
+    const [priceSaleArticle, setPriceSaleArticle] = useState(null)
+    const [ivaArticle, setIvaArticle] = useState(null)
+    const [gainMarginArticle, setGainMarginArticle] = useState('0%')
+    const [salePriceIVAArticle, setSalePriceIVAArticle] = useState('No definido')
     const [datalistGroups, setDatalistGroups] = useDataList()
     const [datalistBrands, setDatalistBrands] = useDataList()
+    const [globalFilterValue, setGlobalFilterValue] = useState('');
+    const [loading, setLoading] = useState(true);
 
     //*states modals
     const [modalNewArticle, setModalNewArticle] = useState(false)
@@ -43,7 +59,36 @@ const Articulos = ({ className }) => {
     useEffect(() => {
         loadGroups()
         loadBrands()
+        loadArticles()
     }, [])
+
+    useEffect(() => {
+        //* calculating article price plus IVA
+        if (priceSaleArticle !== null && ivaArticle !== null) {
+            const pricePlusIVA = priceSaleArticle + (ivaArticle * priceSaleArticle)
+            setSalePriceIVAArticle(pricePlusIVA)
+        } else {
+            setSalePriceIVAArticle('No definido')
+        }
+    }, [priceSaleArticle, ivaArticle])
+
+    useEffect(() => {
+        //* calculating gain margin
+        if (pricePurschaseArticle && priceSaleArticle) {
+            const priceSale = (priceSaleArticle - pricePurschaseArticle) / pricePurschaseArticle * 100
+            setGainMarginArticle(priceSale+'%')
+        } else {
+            setGainMarginArticle('0%')
+        }
+    }, [pricePurschaseArticle, priceSaleArticle])
+
+    useEffect(() => {
+        const [, , , , , , , , , , , artMarginGain, artPriceVentIva] = formNewArticle.current;
+
+        artMarginGain.value = gainMarginArticle + '%'
+        artPriceVentIva.value = salePriceIVAArticle
+
+    }, [salePriceIVAArticle, gainMarginArticle])
 
     //*methods
     const closeModal = (showModal, modalForm, backModal) => {
@@ -94,45 +139,80 @@ const Articulos = ({ className }) => {
         }
     }
 
-    const handleSubmitArticles = async (typeAction, form) => { 
-        let  url, method
+    const handleSubmitArticles = async (typeAction, form) => {
+        let url, method, modalOpen
 
-        const [artCode, artName, artSalePrice, artPercentajeIVA, artPurchasePrice, artUnitMinSale, artNotifyCant, artBrand, artGroup, artInfoAditional, artMarginGain] = form
+        const [artCode, artName, artCant, artSalePrice, artPercentajeIVA, artPurchasePrice, artUnitMinSale, artNotifyCant, artBrand, artGroup, artInfoAditional, artMarginGain, artPriceVentIva] = form.current
+
+        const ivaWithoutPct = artPercentajeIVA.value.replace('%', '')
 
         const data = {
-            artCode,
-            artName,
-            artSalePrice,
-            artPercentajeIVA,
-            artPurchasePrice,
-            artUnitMinSale,
-            artNotifyCant,
-            artBrand,
-            artGroup,
-            artInfoAditional,
-            artMarginGain
+            artCode: artCode.value,
+            artName: artName.value,
+            artCant: artCant.value,
+            artSalePrice: artSalePrice.value,
+            artPercentajeIVA: ivaWithoutPct,
+            artPurchasePrice: artPurchasePrice.value,
+            artUnitMinSale: artUnitMinSale.value,
+            artNotifyCant: artNotifyCant.value,
+            artBrand: artBrand.value.split(' | ', 2)[0],
+            artGroup: artGroup.value.split(' | ', 2)[0],
+            artInfoAditional: artInfoAditional.value,
+            artMarginGain: artMarginGain.value,
+            artPriceVentIva: artPriceVentIva.value,
+            artEmpresa: getToLocalStorage('userInfo', 'empresa')
         }
 
         if (typeAction === 'create') {
             method = 'POST'
             url = 'http://localhost:3001/admins/createArticle'
+            modalOpen = setModalNewArticle
+            form = formNewArticle
         }
 
         if (typeAction === 'update') {
             method = 'PUT'
             url = 'http://localhost:300/admins/updateArticle'
+            // modalOpen = modalUpdateArticle
+            //form = setModalUpdateArticle
         }
 
         const params = {
             method,
-            headers: { 'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         }
 
         const response = await fetch(url, params)
-        const dataResponse = await response.json()
+        const { error, infoProcess } = await response.json()
 
-        console.log(dataResponse);
+        if (infoProcess === 'error') {
+            let messageError;
+
+            if (error === 'adminNotFound') {
+                messageError = 'Articulo no encontrado'
+            } else {
+                messageError = 'No se pudo crear el artiuclo, revise la información enviada'
+            }
+
+            Swal.fire(
+                'Ha ocurrido un error',
+                messageError,
+                'error'
+            )
+
+            return false
+        }
+
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: typeAction === 'create' ? 'Articulo creado exitosamente' : 'Articulo actualizado exitosamente',
+            showConfirmButton: false,
+        }).then(() => {
+            loadArticles()
+            closeModal(modalOpen, form)
+        })
     }
 
     const handleSubmitGroups = async (typeAction, valueGroup, idGroup) => {
@@ -261,6 +341,53 @@ const Articulos = ({ className }) => {
         })
     }
 
+    const calculateGain = (infoInput) => {
+        const { inputLabel, value } = infoInput
+
+        if (inputLabel === 'Porcentaje de IVA') {
+            if (value + ''.trim() === '') {
+                setIvaArticle(null)
+            } else {
+                setIvaArticle(value)
+            }
+        }
+
+        if (inputLabel === 'Precio de venta') {
+            if (value.trim() === '') {
+                setPriceSaleArticle(null)
+            } else {
+                setPriceSaleArticle(parseFloat(value))
+            }
+        }
+
+        if (inputLabel === 'Precio de compra') {
+            if (value.trim() === '') {
+                setPricePurschaseArticle(null)
+            } else {
+                setPricePurschaseArticle(parseFloat(value))
+            }
+        }
+    }
+
+    const loadArticles = async () => {
+        setIsFetching(true)
+        const params = new URLSearchParams()
+        params.append('empresa', getToLocalStorage('userInfo', 'empresa'))
+
+        const response = await fetch('http://localhost:3001/admins/findArticles?' + params.toString())
+        const { dataProcess } = await response.json()
+
+        if (dataProcess === 'articles not found') {
+            setListArticles([])
+            setIsFetching(false)
+            return false
+        }
+
+        console.log(dataProcess);
+        setListArticles(dataProcess)
+        setIsFetching(false)
+    }
+
     const loadGroups = async () => {
         setIsFetching(true)
         const params = new URLSearchParams()
@@ -270,7 +397,7 @@ const Articulos = ({ className }) => {
         const { dataProcess } = await response.json()
 
         if (dataProcess === 'groups not found') {
-            
+
             setListGroups([])
             setIsFetching(false)
             return false
@@ -298,11 +425,25 @@ const Articulos = ({ className }) => {
         }
 
         const allowedKeys = ['Marca_codigo', 'Marca_nombre']
-        
+
         setDatalistBrands([dataProcess, allowedKeys])
         setListBrands(dataProcess)
         setIsFetching(false)
     }
+
+    //*microComponents
+    const onGlobalFilterChange = (e) => {
+        setGlobalFilterValue(e.target.value);
+    };
+
+    const header = (
+        <div className="flex justify-content-end">
+            <span className="p-input-icon-left">
+                <i className="pi pi-search" />
+                <InputText width={'100px'} value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Buscar..." />
+            </span>
+        </div>
+    );
 
     return (
         <div className={className}>
@@ -319,6 +460,15 @@ const Articulos = ({ className }) => {
                     <button onClick={() => setModalFiltersArticle(true)}>
                         {FaFilter}
                     </button>
+                    <button onClick={() => {
+                        updateSession({
+                            typeUser: 'Owner',
+                            fallBack: '/Empresas',
+                            navBar: 'owner'
+                        })
+                    }}>
+                        CambiarTipoDeUsuario
+                    </button>
 
                     <MenuList
                         size='large'
@@ -331,37 +481,58 @@ const Articulos = ({ className }) => {
             </div>
 
             <div className='content-page'>
-
+                <div>
+                    <DataTable value={listArticles} paginator rows={3} dataKey="id" globalFilter={globalFilterValue} header={header}
+                        emptyMessage="Articulos no encontrados">
+                        <Column field="Articulo_codigo" header="Codigo"></Column>
+                        <Column field="Articulo_descripcion" header="Descripcion"></Column>
+                        <Column field="Articulo_cantidad" header="Cantidad"></Column>
+                        <Column field="Articulo_precio_venta" header="Precio"></Column>
+                    </DataTable>
+                </div>
             </div>
 
             <ModalForm titleModal='Nuevo articulo' active={modalNewArticle} formModal={formNewArticle} setClose={setModalNewArticle} method={closeModal}>
-                <form ref={formNewArticle} onSubmit={(evt) => {evt.preventDefault(); handleSubmitArticles('create', formNewArticle.current)}}>
+                <form ref={formNewArticle} onSubmit={(evt) => { evt.preventDefault(); handleSubmitArticles('create', formNewArticle) }}>
                     <InputForm type='number' text='Código de barras' min='0' />
                     <InputForm type='text' text='Nombre' />
                     <InputForm type='number' text='Cantidad' min='0' />
-                    <InputForm type='number' text='Precio de venta' min='0' />
-                    <InputForm type='number' text='Porcentaje de IVA' min='0' />
-                    <InputForm type='number' text='Precio de compra' min='0' />
+                    <InputForm type='number' text='Precio de venta' min='0' onAction={calculateGain} />
+                    <InputForm
+                        type='dataInput'
+                        text='Porcentaje de IVA'
+                        datalist={{
+                            data: [
+                                { value: '0%', dataValue: 0 },
+                                { value: '5%', dataValue: 0.05 },
+                                { value: '19%', dataValue: 0.19 }
+                            ],
+                            nameList: 'listPercentIVA'
+                        }}
+                        onAction={calculateGain}
+                    />
+                    <InputForm type='number' text='Precio de compra' min='0' onAction={calculateGain} />
                     <InputForm type='number' text='Unidad minima de venta' min='0' />
                     <InputForm type='number' text='Notificacion de cantidad' min='0' />
-                    <InputForm 
-                        type='dataInput' 
-                        text='Marca del articulo' 
+                    <InputForm
+                        type='dataInput'
+                        text='Marca del articulo'
                         datalist={{
                             data: datalistBrands,
                             nameList: 'listBrands'
                         }}
                     />
-                    <InputForm 
-                        type='dataInput' 
-                        text='Grupo del articulo' 
+                    <InputForm
+                        type='dataInput'
+                        text='Grupo del articulo'
                         datalist={{
                             data: datalistGroups,
                             nameList: 'listGroups'
                         }}
                     />
                     <InputForm type='text' text='Información adicional' />
-                    <InputForm type='text' text='Margen de ganancia' />
+                    <InputForm isBlock type='text' text='Margen de ganancia' value={gainMarginArticle} />
+                    <InputForm isBlock type='text' text='Precio de venta + IVA' value={salePriceIVAArticle} />
                     <input type='submit' value='Guardar' />
                 </form>
             </ModalForm>

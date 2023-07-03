@@ -23,6 +23,14 @@ const Admin = ({ className }) => {
     const [modalUpdate, setModalUpdate] = useState(false)
     const [IdUser, setIdUser] = useState(null)
     const [dataList, setDataList] = useDataList()
+    const [inputs, setInputs] = useState({
+        inputDocNum: '',
+        inputName: '',
+        inputLastName: '',
+        inputTelephone: '',
+        inputCompany: '',
+        inputPassword: ''
+    })
 
     const inputSearch = useRef()
     const formView = useRef()
@@ -31,6 +39,15 @@ const Admin = ({ className }) => {
 
     const toggleSearchInput = () => setShowInputSearch(!showInputSearch)
     const closeModal = (setClose, formModal) => {
+        setInputs({
+            ...inputs,
+            inputDocNum: '',
+            inputName: '',
+            inputLastName: '',
+            inputTelephone: '',
+            inputCompany: '',
+            inputPassword: ''
+        })
         setClose(false)
         formModal.current.reset()
     }
@@ -70,7 +87,7 @@ const Admin = ({ className }) => {
     }
 
     const loadInfoModal = async (id, modalForm, showModal) => {
-        const [cedula, nombre, apellido, telefono, empresa, password, ventasSection, comprasSection, historialSection] = modalForm.current
+        const [, , , , , , ventasSection, comprasSection, historialSection] = modalForm.current
         const response = await fetch('http://localhost:3001/users/id/' + id)
         const { infoProcess, error, dataProcess } = await response.json()
         const {ventas, compras, historial} = JSON.parse(dataProcess.User_modulos)
@@ -90,12 +107,15 @@ const Admin = ({ className }) => {
             return false
         }
 
-        cedula.value = dataProcess.User_cedula
-        nombre.value = dataProcess.User_nombre
-        apellido.value = dataProcess.User_apellido
-        telefono.value = dataProcess.User_telefono
-        empresa.value = dataProcess.Empresa.empresa_razon_social
-        password.value = decryptText(dataProcess.User_password)
+        setInputs({
+            ...inputs,
+            inputDocNum: dataProcess.User_cedula,
+            inputName: dataProcess.User_nombre,
+            inputLastName: dataProcess.User_apellido,
+            inputTelephone: dataProcess.User_telefono,
+            inputCompany: dataProcess.Empresa.empresa_razon_social,
+            inputPassword: decryptText(dataProcess.User_password)
+        })
 
         if (ventas !== '') {
             ventasSection.checked = true
@@ -299,12 +319,12 @@ const Admin = ({ className }) => {
 
             <ModalForm titleModal='Información Usuario' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
-                    <InputForm isBlock type='number' text='Cedula' />
-                    <InputForm isBlock type='text' text='Nombre' />
-                    <InputForm isBlock type='text' text='Apellido' />
-                    <InputForm isBlock type='text' text='Telefono' />
-                    <InputForm isBlock type='text' text='Empresa' />
-                    <InputForm isBlock type='text' text='Contraseña' />
+                    <InputForm isBlock type='number' text='Cedula' value={inputs.inputDocNum} />
+                    <InputForm isBlock type='text' text='Nombre' value={inputs.inputName} />
+                    <InputForm isBlock type='text' text='Apellido' value={inputs.inputLastName} />
+                    <InputForm isBlock type='text' text='Telefono' value={inputs.inputTelephone} />
+                    <InputForm isBlock type='text' text='Empresa' value={inputs.inputCompany} />
+                    <InputForm isBlock type='text' text='Contraseña' value={inputs.inputPassword} />
                     <SeccionUser>
                         <h2>Modulos</h2>
                         <div>
@@ -353,10 +373,10 @@ const Admin = ({ className }) => {
 
             <ModalForm titleModal='Editar información Usuario' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
-                    <InputForm active type='number' text='Cedula' />
-                    <InputForm active type='text' text='Nombre' />
-                    <InputForm active type='text' text='Apellido' />
-                    <InputForm active type='text' text='Telefono' />
+                    <InputForm active type='number' text='Cedula' value={inputs.inputDocNum} />
+                    <InputForm active type='text' text='Nombre' value={inputs.inputName} />
+                    <InputForm active type='text' text='Apellido' value={inputs.inputLastName} />
+                    <InputForm active type='text' text='Telefono' value={inputs.inputTelephone} />
                     <InputForm
                         active
                         type='dataInput'
@@ -365,8 +385,9 @@ const Admin = ({ className }) => {
                             data: dataList,
                             nameList: 'list-empresas-edit'
                         }}
+                        value={inputs.inputCompany}
                     />
-                    <InputForm active type='text' text='Contraseña' />
+                    <InputForm active type='text' text='Contraseña' value={inputs.inputPassword} />
 
                     <SeccionUser>
                         <h2>Modulos</h2>

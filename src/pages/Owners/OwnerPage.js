@@ -20,6 +20,14 @@ const Owner = ({ className }) => {
     const [modalCreate, setModalCreate] = useState(false)
     const [modalUpdate, setModalUpdate] = useState(false)
     const [idOwner, setIdOwner] = useState(null)
+    const [inputs, setInputs] = useState({
+        inputDocNum: '',
+        inputName: '',
+        inputLastName: '',
+        inputTel: '',
+        inputEmail: '',
+        inputPassword: ''
+    })
 
     const inputSearch = useRef()
     const formView = useRef()
@@ -29,14 +37,23 @@ const Owner = ({ className }) => {
     const toggleSearchInput = () => setShowInputSearch(!showInputSearch)
 
     const closeModal = (setClose, formModal) => {
+        setClose({
+            ...inputs,
+            inputDocNum: '',
+            inputName: '',
+            inputLastName: '',
+            inputTel: '',
+            inputEmail: '',
+            inputPassword: ''
+        })
         setClose(false)
         formModal.current.reset()
     }
 
     const loadOwner = async (filter = '') => {
         setIsFetching(true)
-        const response = await fetch('http://localhost:3001/owners'+filter)
-        const {dataProcess} = await response.json()
+        const response = await fetch('http://localhost:3001/owners' + filter)
+        const { dataProcess } = await response.json()
 
         if (dataProcess === 'Not Owners avaliable') {
             setOwnerList([])
@@ -53,9 +70,8 @@ const Owner = ({ className }) => {
         }, 500);
     }
 
-    const loadInfoModal = async (idOwner, modalForm, showodal) => {
+    const loadInfoModal = async (idOwner, showodal) => {
         setIsFetching(true)
-        const [cedula, nombre, apellido, telefono, email, password] = modalForm.current
         const response = await fetch('http://localhost:3001/owners/id/' + idOwner)
         const dataResponse = await response.json()
         const { OwnerInfo } = dataResponse.dataProcess
@@ -73,12 +89,15 @@ const Owner = ({ className }) => {
             return false
         }
 
-        cedula.value = OwnerInfo.cedula
-        nombre.value = OwnerInfo.nombre
-        apellido.value = OwnerInfo.apellido
-        telefono.value = OwnerInfo.telefono
-        email.value = OwnerInfo.email
-        password.value = decryptText(OwnerInfo.password)
+        setInputs({
+            ...inputs,
+            inputDocNum: OwnerInfo.cedula,
+            inputName: OwnerInfo.nombre,
+            inputLastName: OwnerInfo.apellido,
+            inputTel: OwnerInfo.telefono,
+            inputEmail: OwnerInfo.email,
+            inputPassword: decryptText(OwnerInfo.password),
+        })
 
         setIdOwner(idOwner)
         showodal(true)
@@ -110,14 +129,14 @@ const Owner = ({ className }) => {
         const formModal = action === 'create' ? formCreate : formUpdate
 
         const response = await fetch(url, params)
-        const {error, infoProcess} = await response.json()
+        const { error, infoProcess } = await response.json()
 
         if (infoProcess === 'error') {
             let messageError;
 
             if (error === 'userNotFound') {
                 messageError = 'Usuario no encontrado'
-            }else {
+            } else {
                 messageError = 'No se pudo crear el usuario, revise bien la informacion enviada'
             }
 
@@ -128,7 +147,7 @@ const Owner = ({ className }) => {
             )
 
             return false
-        } 
+        }
 
         Swal.fire({
             position: 'top-end',
@@ -162,13 +181,13 @@ const Owner = ({ className }) => {
                 }
 
                 const response = await fetch(url, params)
-                const {infoProcess, error} = await response.json()
+                const { infoProcess, error } = await response.json()
 
                 if (infoProcess === 'error') {
                     setTimeout(() => {
                         setIsFetching(false)
                     }, 500);
-        
+
                     Swal.fire(
                         'Ha ocurrido un error',
                         error === 'userNotFound' ? 'Usuario no encontrado' : error,
@@ -187,7 +206,7 @@ const Owner = ({ className }) => {
                 setTimeout(() => {
                     setIsFetching(false)
                 }, 500);
-    
+
             }
         })
     }
@@ -197,13 +216,13 @@ const Owner = ({ className }) => {
     }, [])
 
     useEffect(() => {
-        loadOwner('/'+textSearch)
+        loadOwner('/' + textSearch)
     }, [textSearch])
 
     return (
         <div className={className}>
-            
-            { isFetching && <Loader/> }
+
+            {isFetching && <Loader />}
 
             <div>
                 <div className='title-page' onMouseLeave={() => setShowInputSearch(false)} >
@@ -232,33 +251,33 @@ const Owner = ({ className }) => {
                 <div className='content-page'>
                     {
                         ownerList.length > 0 ?
-                        ownerList.map(({ id, nombre, apellido }) => (
-                            <IterableComponent key={id} title={nombre + ' ' + apellido} description=' ' 
-                                methods={[
-                                    { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
-                                    { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
-                                    { description: FaTrash, action: () => deleteOner(id) },
-                                ]}
-                            />
-                        ))
-                        :
-                        <NoDataMessage>
-                            <div>
-                                <h1>Upss!<br/> <span>No hay Owners registrados todavía.</span></h1>
-                            </div>
-                        </NoDataMessage>
+                            ownerList.map(({ id, nombre, apellido }) => (
+                                <IterableComponent key={id} title={nombre + ' ' + apellido} description=' '
+                                    methods={[
+                                        { description: FaEye, action: () => loadInfoModal(id, setModalView) },
+                                        { description: FaPenToSquare, action: () => loadInfoModal(id, setModalUpdate) },
+                                        { description: FaTrash, action: () => deleteOner(id) },
+                                    ]}
+                                />
+                            ))
+                            :
+                            <NoDataMessage>
+                                <div>
+                                    <h1>Upss!<br /> <span>No hay Owners registrados todavía.</span></h1>
+                                </div>
+                            </NoDataMessage>
                     }
                 </div>
             </div>
 
             <ModalForm titleModal='Información Owner' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
-                    <InputForm type='number' text='Cedula' isBlock />
-                    <InputForm type='text' text='Nombre' isBlock />
-                    <InputForm type='text' text='Apellido' isBlock />
-                    <InputForm type='text' text='Telefono' isBlock />
-                    <InputForm type='email' text='Email' isBlock />
-                    <InputForm type='text' text='Contraseña' isBlock />
+                    <InputForm isBlock type='number' text='Cedula' value={inputs.inputDocNum} />
+                    <InputForm isBlock type='text' text='Nombre' value={inputs.inputName} />
+                    <InputForm isBlock type='text' text='Apellido' value={inputs.inputLastName} />
+                    <InputForm isBlock type='text' text='Telefono' value={inputs.inputTel} />
+                    <InputForm isBlock type='email' text='Email' value={inputs.inputEmail} />
+                    <InputForm isBlock type='text' text='Contraseña' value={inputs.inputPassword} />
                 </form>
             </ModalForm>
 
@@ -276,12 +295,12 @@ const Owner = ({ className }) => {
 
             <ModalForm titleModal='Editar información Owner' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
-                    <InputForm active type='number' text='Cedula' />
-                    <InputForm active type='text' text='Nombre' />
-                    <InputForm active type='text' text='Apellido' />
-                    <InputForm active type='text' text='Telefono' />
-                    <InputForm active type='email' text='Email' />
-                    <InputForm active type='password' text='Contraseña' />
+                    <InputForm active type='number' text='Cedula' value={inputs.inputDocNum} />
+                    <InputForm active type='text' text='Nombre' value={inputs.inputName} />
+                    <InputForm active type='text' text='Apellido' value={inputs.inputLastName} />
+                    <InputForm active type='text' text='Telefono' value={inputs.inputTel} />
+                    <InputForm active type='email' text='Email' value={inputs.inputEmail} />
+                    <InputForm active type='password' text='Contraseña' value={inputs.inputPassword} />
                     <input type="submit" value='Editar' />
                 </form>
             </ModalForm>

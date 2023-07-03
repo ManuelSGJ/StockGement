@@ -63,16 +63,6 @@ const Router = () => {
                 }
             />
 
-            <Route 
-                path='/'  
-                element={
-                    <ProtectView 
-                        allowedUserType='Admin' 
-                        view={<HomePage/>}
-                    />
-                }
-            />
-
             {/*//? Admins pages */}
             <Route 
                 path='/Ventas'
@@ -94,9 +84,18 @@ const Router = () => {
                 }
             />
 
-
-
             {/* Global pages */}
+            <Route 
+                path='/'  
+                element={
+                    // lo redirecciona al main page
+                    <ProtectView 
+                        allowedUserType={userInfo.typeUser+'False'} 
+                        notNavBar
+                    />
+                }
+            />
+
             <Route 
                 path='/Login'  
                 element={

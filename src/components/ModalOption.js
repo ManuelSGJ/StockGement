@@ -47,12 +47,18 @@ const TitleModal = styled.div`
 const ModalContainer = styled.div`
     width: 45%;
     min-width: 700px;
+    max-height: 80vh;
     background-color: #fdfdfd;
     border-radius: 31px;
     box-shadow: 3px 3px 5px 0px rgba(84, 185, 217, 0.49);
     transition: all .5s ease-in-out;
-    overflow: hidden;
+    overflow: auto;
+
     transform: ${props => props.active ? 'translateY(-5vw)': 'translateY(-15vw)'};
+
+    ::-webkit-scrollbar{
+        display: none;
+    }
 `
 
 const Overlay = styled.div`

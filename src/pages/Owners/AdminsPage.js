@@ -23,6 +23,15 @@ const Admin = ({ className }) => {
     const [modalUpdate, setModalUpdate] = useState(false)
     const [idAdmin, setIdAdmin] = useState(null)
     const [dataList, setDataList] = useDataList()
+    const [inputs, setInputs] = useState({
+        inputDocNum: '',
+        inputName: '',
+        inputLastName: '',
+        inputTel: '',
+        inputAddress: '',
+        inputCompany: '',
+        inputPass: ''
+    })
 
     const inputSearch = useRef()
     const formView = useRef()
@@ -31,6 +40,16 @@ const Admin = ({ className }) => {
 
     const toggleSearchInput = () => setShowInputSearch(!showInputSearch)
     const closeModal = (setClose, formModal) => {
+        setInputs({
+            ...inputs,
+            inputDocNum: '',
+            inputName: '',
+            inputLastName: '',
+            inputTel: '',
+            inputAddress: '',
+            inputCompany: '',
+            inputPass: ''
+        })
         setClose(false)
         formModal.current.reset()
     }
@@ -69,8 +88,7 @@ const Admin = ({ className }) => {
         setIsFetching(false)
     }
 
-    const loadInfoModal = async (id, modalForm, showModal) => {
-        const [cedula, nombre, apellido, telefono, direccion, empresa, password] = modalForm.current
+    const loadInfoModal = async (id, showModal) => {
         const response = await fetch('http://localhost:3001/admins/id/' + id)
         const { infoProcess, error, dataProcess } = await response.json()
 
@@ -88,13 +106,16 @@ const Admin = ({ className }) => {
             return false
         }
 
-        cedula.value = dataProcess.Admin_cedula
-        nombre.value = dataProcess.Admin_nombre
-        apellido.value = dataProcess.Admin_apellido
-        telefono.value = dataProcess.Admin_telefono
-        direccion.value = dataProcess.Admin_direccion
-        empresa.value = dataProcess.Empresa.empresa_razon_social
-        password.value = decryptText(dataProcess.Admin_password)
+        setInputs({
+            ...inputs,
+            inputDocNum: dataProcess.Admin_cedula,
+            inputName: dataProcess.Admin_nombre,
+            inputLastName: dataProcess.Admin_apellido,
+            inputTel: dataProcess.Admin_telefono,
+            inputAddress: dataProcess.Admin_direccion,
+            inputCompany: dataProcess.Empresa.empresa_razon_social,
+            inputPass: decryptText(dataProcess.Admin_password)
+        })
 
         setIdAdmin(id)
         showModal(true)
@@ -265,8 +286,8 @@ const Admin = ({ className }) => {
                         AdminList.map(({ Admin_cedula: id, Admin_nombre: nombre, Admin_apellido: apellido, Empresa: { empresa_razon_social: empresa } }) => (
                             <IterableComponent key={id} title={nombre + ' ' + apellido} description={empresa}
                                 methods={[
-                                    { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
-                                    { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
+                                    { description: FaEye, action: () => loadInfoModal(id, setModalView) },
+                                    { description: FaPenToSquare, action: () => loadInfoModal(id, setModalUpdate) },
                                     { description: FaTrash, action: () => deleteEmpresa(id) },
                                 ]}
                             />
@@ -282,13 +303,13 @@ const Admin = ({ className }) => {
 
             <ModalForm titleModal='Información Administrador' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
-                    <InputForm isBlock type='number' text='Cedula' />
-                    <InputForm isBlock type='text' text='Nombre' />
-                    <InputForm isBlock type='text' text='Apellido' />
-                    <InputForm isBlock type='text' text='Telefono' />
-                    <InputForm isBlock type='text' text='Dirección' />
-                    <InputForm isBlock type='text' text='Empresa' />
-                    <InputForm isBlock type='text' text='Contraseña' />
+                    <InputForm isBlock type='number' text='Cedula' value={inputs.inputDocNum} />
+                    <InputForm isBlock type='text' text='Nombre' value={inputs.inputName} />
+                    <InputForm isBlock type='text' text='Apellido' value={inputs.inputLastName} />
+                    <InputForm isBlock type='text' text='Telefono' value={inputs.inputTel} />
+                    <InputForm isBlock type='text' text='Dirección' value={inputs.inputAddress} />
+                    <InputForm isBlock type='text' text='Empresa' value={inputs.inputCompany} />
+                    <InputForm isBlock type='text' text='Contraseña' value={inputs.inputPass} />
                 </form>
             </ModalForm>
 
@@ -314,18 +335,18 @@ const Admin = ({ className }) => {
 
             <ModalForm titleModal='Editar información Administrador' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
-                    <InputForm active type='number' text='Cedula' />
-                    <InputForm active type='text' text='Nombre' />
-                    <InputForm active type='text' text='Apellido' />
-                    <InputForm active type='text' text='Telefono' />
-                    <InputForm active type='text' text='Dirección' />
-                    <InputForm active type='dataInput' text='Empresa'
-                        datalist={{
-                            data: dataList,
-                            nameList: 'list-empresas-edit'
-                        }}
+                    <InputForm active type='number' text='Cedula' value={inputs.inputDocNum} />
+                    <InputForm active type='text' text='Nombre' value={inputs.inputName} />
+                    <InputForm active type='text' text='Apellido' value={inputs.inputLastName} />
+                    <InputForm active type='text' text='Telefono' value={inputs.inputTel} />
+                    <InputForm active type='text' text='Dirección' value={inputs.inputAddress} />
+                    <InputForm active type='dataInput' text='Empresa' 
+                        datalist={
+                            {data: dataList,nameList: 'list-empresas-edit'
+                        }} 
+                        value={inputs.inputCompany} 
                     />
-                    <InputForm active type='text' text='Contraseña' />
+                    <InputForm active type='text' text='Contraseña' value={inputs.inputPass} />
                     <input type="submit" value='Editar' />
                 </form>
             </ModalForm>

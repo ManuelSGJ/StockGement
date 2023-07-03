@@ -20,6 +20,13 @@ const Empresas = ({ className }) => {
     const [modalCreate, setModalCreate] = useState(false)
     const [modalUpdate, setModalUpdate] = useState(false)
     const [idEmpresa, setIdEmpresa] = useState(null)
+    const [inputs, setInputs] = useState({
+        inputNit : '',
+        inputRazonSocial : '',
+        inputPersonaRepsonsable: '',
+        inputDireccion: '',
+        inputFechaLicencia : ''
+    })
 
     const inputSearch = useRef()
     const formView = useRef()
@@ -28,6 +35,14 @@ const Empresas = ({ className }) => {
 
     const toggleSearchInput = () => setShowInputSearch(!showInputSearch)
     const closeModal = (setClose, formModal) => {
+        setInputs({
+            ...inputs,
+            inputNit : '',
+            inputRazonSocial : '',
+            inputPersonaRepsonsable: '',
+            inputDireccion: '',
+            inputFechaLicencia : ''
+        })
         setClose(false)
         formModal.current.reset()
     }
@@ -49,9 +64,8 @@ const Empresas = ({ className }) => {
         setIsFetching(false)
     }
 
-    const loadInfoModal = async(id, modalForm, showModal) => {
+    const loadInfoModal = async(id, showModal) => {
         setIsFetching(true)
-        const [nit, razonSocial, personaResponsable, direccion, fechaExpLicencia] = modalForm.current
         const response = await fetch('http://localhost:3001/empresas/id/'+id)
         const {infoProcess, error, dataProcess} = await response.json()
 
@@ -68,11 +82,14 @@ const Empresas = ({ className }) => {
             return false
         }
         
-        nit.value = dataProcess.empresa_NIT
-        razonSocial.value = dataProcess.empresa_razon_social
-        personaResponsable.value = dataProcess.empresa_persona_responsable
-        direccion.value = dataProcess.empresa_direccion
-        fechaExpLicencia.value = dataProcess.empresa_fecha_licencia
+        setInputs({
+            ...inputs,
+            inputNit: dataProcess.empresa_NIT,
+            inputRazonSocial: dataProcess.empresa_razon_social,
+            inputPersonaRepsonsable: dataProcess.empresa_persona_responsable,
+            inputDireccion: dataProcess.empresa_direccion,
+            inputFechaLicencia: dataProcess.empresa_fecha_licencia
+        })
 
         setIdEmpresa(id)
         showModal(true)
@@ -192,6 +209,10 @@ const Empresas = ({ className }) => {
     }, [])
 
     useEffect(() => {
+        console.log(inputs);
+    }, [inputs])
+
+    useEffect(() => {
         loadEmpresas('/'+textSearch)
     }, [textSearch])
 
@@ -229,8 +250,8 @@ const Empresas = ({ className }) => {
                     empresasList.map(({empresa_NIT: id, empresa_razon_social: nombre, empresa_fecha_licencia: fechaExp }) => (
                             <IterableComponent key={id} title={nombre} description={`Fexha exp licencia: `+fechaExp}
                                 methods={[
-                                    { description: FaEye, action: () => loadInfoModal(id, formView, setModalView) },
-                                    { description: FaPenToSquare, action: () => loadInfoModal(id, formUpdate, setModalUpdate) },
+                                    { description: FaEye, action: () => loadInfoModal(id, setModalView) },
+                                    { description: FaPenToSquare, action: () => loadInfoModal(id, setModalUpdate) },
                                     { description: FaTrash, action: () => deleteEmpresa(id) },
                                 ]}
                             />
@@ -247,11 +268,11 @@ const Empresas = ({ className }) => {
 
             <ModalForm titleModal='Información Empresa' active={modalView} formModal={formView} setClose={setModalView} method={closeModal}>
                 <form ref={formView}>
-                    <InputForm isBlock type='number' text='Nit Empresa' />
-                    <InputForm isBlock type='text' text='Razon Social' />
-                    <InputForm isBlock type='text' text='Persona responsable' />
-                    <InputForm isBlock type='text' text='Dirección' />
-                    <InputForm isBlock type='date' text='Fecha de licencia' />
+                    <InputForm isBlock type='number' text='Nit Empresa' value={inputs.inputNit} />
+                    <InputForm isBlock type='text' text='Razon Social' value={inputs.inputRazonSocial} />
+                    <InputForm isBlock type='text' text='Persona responsable' value={inputs.inputPersonaRepsonsable} />
+                    <InputForm isBlock type='text' text='Dirección' value={inputs.inputDireccion} />
+                    <InputForm isBlock type='date' text='Fecha de licencia' value={inputs.inputFechaLicencia} />
                 </form>
             </ModalForm>
 
@@ -268,11 +289,11 @@ const Empresas = ({ className }) => {
 
             <ModalForm titleModal='Editar información empresa' active={modalUpdate} formModal={formUpdate} setClose={setModalUpdate} method={closeModal}>
                 <form ref={formUpdate} onSubmit={(event) => { event.preventDefault(); handleSubmit('update', event.target) }}>
-                    <InputForm active type='number' text='Nit Empresa' />
-                    <InputForm active type='text' text='Razon Social' />
-                    <InputForm active type='text' text='Persona responsable' />
-                    <InputForm active type='text' text='Dirección' />
-                    <InputForm active type='date' text='Fecha de licencia' />
+                    <InputForm active type='number' text='Nit Empresa' value={inputs.inputNit} />
+                    <InputForm active type='text' text='Razon Social' value={inputs.inputRazonSocial} />
+                    <InputForm active type='text' text='Persona responsable' value={inputs.inputPersonaRepsonsable} />
+                    <InputForm active type='text' text='Dirección' value={inputs.inputDireccion} />
+                    <InputForm active type='date' text='Fecha de licencia' value={inputs.inputFechaLicencia} />
                     <input type="submit" value='Editar' />
                 </form>
             </ModalForm>

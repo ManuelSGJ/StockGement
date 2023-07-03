@@ -59,9 +59,6 @@ const Input = ({ value, type, text, className, datalist, isBlock, active, min, m
         }
     }, [])
 
-    useEffect(() => {
-        setValueInput(value)
-    }, [value])
 
     return (
         <div className={className}>
